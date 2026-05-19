@@ -18,13 +18,11 @@
   "listings": {
     "home": {
       "title": "Bazar",
-      "description": "Interní bazar Blogic, nabízej věci kolegům k prodeji nebo zdarma. Platbu a předání so domluvíte mezi sebou.",
+      "description": "Interní bazar Blogic, nabízej věci kolegům k prodeji nebo zdarma. Platbu a předání si domluvíte mezi sebou.",
       "button": "Zobrazit detaily",
       "stav": "Stav:",
       "Kč": "Kč",
       "zdarma": "Zdarma"
-
-
     }
   }
 }
