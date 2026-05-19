@@ -30,6 +30,7 @@
     "@mantine/form": "^9.1.1",
     "@mantine/hooks": "^9.1.1",
     "@mantine/modals": "^9.1.1",
+    "@tabler/icons-react": "^3.44.0",
     "@tanstack/react-query": "^5.100.9",
     "better-sqlite3": "^12.9.0",
     "drizzle-orm": "^0.45.2",
@@ -37,7 +38,8 @@
     "next": "^16.2.5",
     "next-intl": "^4.11.0",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "use-debounce": "^10.1.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",

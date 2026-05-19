@@ -21,8 +21,10 @@
       "description": "Interní bazar Blogic, nabízej věci kolegům k prodeji nebo zdarma. Platbu a předání si domluvíte mezi sebou.",
       "button": "Zobrazit detaily",
       "stav": "Stav:",
-      "Kč": "Kč",
-      "zdarma": "Zdarma"
+      "Kc": "Kč",
+      "zdarma": "Zdarma",
+      "Zadneinzeraty": "Žádné inzeráty k zobrazení",
+      "Pridatnabidku": "Přidat nabídku"
     }
   }
 }
