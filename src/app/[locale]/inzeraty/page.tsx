@@ -41,10 +41,7 @@ export default async function Page({ searchParams }: PageProps) {
     const dbKategorie = inzerat.category?.toLowerCase().trim() || "";
     const dbStav = inzerat.status?.toLowerCase().trim() || "";
 
-    const odpovidaSearch =
-      filterSearch === "" ||
-      dbNazev.includes(filterSearch) ||
-      dbPopis.includes(filterSearch);
+    const odpovidaSearch = filterSearch === "" || dbNazev.includes(filterSearch) || dbPopis.includes(filterSearch);
 
     const odpovidaKategorie =
       filterKategorie === "" ||
@@ -73,62 +70,62 @@ export default async function Page({ searchParams }: PageProps) {
   });
   return (
     <Stack align="flex-start" gap="md">
-        <Stack gap="xs">
-          <Title order={1} size="h1" fw={900} style={{ letterSpacing: "-1px" }}>
-            {t("listings.home.title")}
-          </Title>
-          <Text c="dimmed" size="lg" maw={500}>
-            {t("listings.home.description")}
-          </Text>
+      <Stack gap="xs">
+        <Title order={1} size="h1" fw={900} style={{ letterSpacing: "-1px" }}>
+          {t("listings.home.title")}
+        </Title>
+        <Text c="dimmed" size="lg" maw={500}>
+          {t("listings.home.description")}
+        </Text>
         <Button
           color="orange"
           size="md"
           radius="md"
           leftSection={<IconPlus size={20} />}
-          style={{ boxShadow: "0 4px 10px rgba(255, 145, 0, 0.3)", width: 'fit-content' }}
+          style={{ boxShadow: "0 4px 10px rgba(255, 145, 0, 0.3)", width: "fit-content" }}
         >
           {t("listings.home.Pridatnabidku")}
         </Button>
         <FiltryBar />
 
-      {/* VÝPIS FILTROVANÝCH INZERÁTŮ */}
-      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-        {filtrovaneInzeraty.map((inzerat) => {
-          // Pomocná proměnná pro bezpečné určení stavu (převedeme na malé pro porovnání)
-          const stavLower = inzerat.status?.toLowerCase() || "";
-          const jeAktivni = stavLower.includes("aktiv") || stavLower === "dostupné";
-          const jeRezervovano = stavLower.includes("rezerv");
+        {/* VÝPIS FILTROVANÝCH INZERÁTŮ */}
+        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
+          {filtrovaneInzeraty.map((inzerat) => {
+            // Pomocná proměnná pro bezpečné určení stavu (převedeme na malé pro porovnání)
+            const stavLower = inzerat.status?.toLowerCase() || "";
+            const jeAktivni = stavLower.includes("aktiv") || stavLower === "dostupné";
+            const jeRezervovano = stavLower.includes("rezerv");
 
-          return (
-            <Card key={inzerat.id} shadow="sm" padding="lg" radius="md" withBorder>
-              <Group justify="space-between" mt="md" mb="xs">
-                <Text fw={500}>{inzerat.name}</Text>
-                <Badge color={jeAktivni ? 'green' : jeRezervovano ? 'indigo' : 'gray'}>
-                  {jeAktivni ? 'Dostupné' : jeRezervovano ? 'Rezervováno' : 'Prodáno'}
-                </Badge>
-              </Group>
+            return (
+              <Card key={inzerat.id} shadow="sm" padding="lg" radius="md" withBorder>
+                <Group justify="space-between" mt="md" mb="xs">
+                  <Text fw={500}>{inzerat.name}</Text>
+                  <Badge color={jeAktivni ? "green" : jeRezervovano ? "indigo" : "gray"}>
+                    {jeAktivni ? "Dostupné" : jeRezervovano ? "Rezervováno" : "Prodáno"}
+                  </Badge>
+                </Group>
 
-              <Text size="sm" c="dimmed" lineClamp={2}>
-                {inzerat.description}
-              </Text>
+                <Text size="sm" c="dimmed" lineClamp={2}>
+                  {inzerat.description}
+                </Text>
 
-              <Group gap="xs" mt="sm">
-                <Badge variant="outline">{inzerat.category}</Badge>
-                <Badge color={inzerat.price > 0 ? "blue" : "green"}>
-                  {inzerat.price > 0 ? `${inzerat.price.toLocaleString()} Kč` : "Zdarma"}
-                </Badge>
-              </Group>
+                <Group gap="xs" mt="sm">
+                  <Badge variant="outline">{inzerat.category}</Badge>
+                  <Badge color={inzerat.price > 0 ? "blue" : "green"}>
+                    {inzerat.price > 0 ? `${inzerat.price.toLocaleString()} Kč` : "Zdarma"}
+                  </Badge>
+                </Group>
 
-              <Link href={`/inzerat/${inzerat.id}`} passHref style={{ textDecoration: 'none' }}>
-                <Button fullWidth mt="md" radius="md" variant="light">
-                  Zobrazit detail
-                </Button>
-              </Link>
-            </Card>
-          );
-        })}
+                <Link href={`/inzerat/${inzerat.id}`} passHref style={{ textDecoration: "none" }}>
+                  <Button fullWidth mt="md" radius="md" variant="light">
+                    Zobrazit detail
+                  </Button>
+                </Link>
+              </Card>
+            );
+          })}
         </SimpleGrid>
-    </Stack>
+      </Stack>
     </Stack>
   );
 }

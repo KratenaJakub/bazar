@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Checkbox, Paper,Select, SimpleGrid, TextInput } from "@mantine/core";
+import { Checkbox, Paper, Select, SimpleGrid, TextInput } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -36,7 +36,6 @@ export default function FiltryBar() {
   return (
     <Paper withBorder radius="md" p="md" bg="var(--mantine-color-gray-0)">
       <SimpleGrid cols={{ base: 1, sm: 4 }} spacing="md">
-
         {/* 1. Vyhledávací pole (Nalevo) */}
         <TextInput
           label="Hledat"
@@ -51,14 +50,14 @@ export default function FiltryBar() {
           label="Kategorie"
           placeholder="Všechny"
           data={[
-            { value: 'elektro', label: 'Elektro' },
-            { value: 'nabytek', label: 'Nábytek' },
-            { value: 'obleceni', label: 'Oblečení' },
-            { value: 'detske-veci', label: 'Dětské věci' },
-            { value: 'knihy', label: 'Knihy' },
-            { value: 'sport', label: 'Sport' },
-            { value: 'ostatni', label: 'Ostatní' },
-            { value: 'kuchyne', label: 'Kuchyně' }
+            { value: "elektro", label: "Elektro" },
+            { value: "nabytek", label: "Nábytek" },
+            { value: "obleceni", label: "Oblečení" },
+            { value: "detske-veci", label: "Dětské věci" },
+            { value: "knihy", label: "Knihy" },
+            { value: "sport", label: "Sport" },
+            { value: "ostatni", label: "Ostatní" },
+            { value: "kuchyne", label: "Kuchyně" },
           ]}
           value={kategorie}
           onChange={setKategorie}
@@ -70,9 +69,9 @@ export default function FiltryBar() {
           label="Stav"
           placeholder="Všechny"
           data={[
-            { value: 'aktivni', label: 'Dostupné' },
-            { value: 'rezervovano', label: 'Rezervováno' },
-            { value: 'prodano', label: 'Prodáno' },
+            { value: "aktivni", label: "Dostupné" },
+            { value: "rezervovano", label: "Rezervováno" },
+            { value: "prodano", label: "Prodáno" },
           ]}
           value={stav}
           onChange={setStav}
@@ -86,7 +85,6 @@ export default function FiltryBar() {
           onChange={(e) => setZdarma(e.currentTarget.checked)}
           styles={{ root: { paddingTop: 20 } }} // Jemný posun dolů, aby to lícovalo s popisky selectů
         />
-
       </SimpleGrid>
     </Paper>
   );
