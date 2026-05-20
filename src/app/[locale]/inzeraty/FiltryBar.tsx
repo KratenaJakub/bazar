@@ -83,7 +83,7 @@ export default function FiltryBar() {
           label="Pouze věci zdarma"
           checked={zdarma}
           onChange={(e) => setZdarma(e.currentTarget.checked)}
-          styles={{ root: { paddingTop: 20 } }} // Jemný posun dolů, aby to lícovalo s popisky selectů
+          styles={{ root: { paddingTop: 40 } }} // Jemný posun dolů, aby to lícovalo s popisky selectů
         />
       </SimpleGrid>
     </Paper>
