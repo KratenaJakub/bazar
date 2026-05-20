@@ -7,5 +7,8 @@ export const listings = sqliteTable("listings", {
   price: integer("price").notNull(),
   category: text("category").notNull(),
   status: text("status").notNull().default("active"),
+  NameSurname: text("NameSurname").notNull(),
+  contact: text("contact").notNull(),
+  Photo: text("Photo").notNull(),
 });
 export type Listing = typeof listings.$inferSelect;

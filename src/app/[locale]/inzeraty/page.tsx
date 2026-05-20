@@ -1,4 +1,4 @@
-import { Badge, Button, Card, Group, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Badge, Button, Card, CardSection, Group, Image, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -50,13 +50,15 @@ export default async function Page() {
             return (
               <Card key={inzerat.id} shadow="sm" padding="lg" radius="md" withBorder>
                 <Group justify="space-between" mt="md" mb="xs">
-                  <Text fw={500}>{inzerat.name}</Text>
+                  <Text fw={500} lineClamp={1}>
+                    {inzerat.name}
+                  </Text>
                   <Badge color={jeAktivni ? "green" : jeRezervovano ? "indigo" : "gray"}>
                     {jeAktivni ? "Dostupné" : jeRezervovano ? "Rezervováno" : "Prodáno"}
                   </Badge>
                 </Group>
 
-                <Text size="sm" c="dimmed" lineClamp={2}>
+                <Text size="sm" c="dimmed" lineClamp={2} h={40}>
                   {inzerat.description}
                 </Text>
 
@@ -66,6 +68,16 @@ export default async function Page() {
                     {inzerat.price > 0 ? `${inzerat.price.toLocaleString()} ${t("page.listings.Kc")} ` : "zdarma"}
                   </Badge>
                 </Group>
+                <CardSection mx="md" mb="md">
+                  <Image
+                    src={inzerat.Photo && inzerat.Photo.trim() !== "" ? inzerat.Photo : "/blogic-logo.png"}
+                    alt={inzerat.name || "Obrázek inzerátu"}
+                    h={180}
+                    fit="contain"
+                    mt="md"
+                    bg="gray.0"
+                  />
+                </CardSection>
 
                 <Link href={`/inzeraty/${inzerat.id}`} passHref style={{ textDecoration: "none" }}>
                   <Button fullWidth mt="md" radius="md" variant="light">
