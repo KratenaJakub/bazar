@@ -34,7 +34,8 @@ export default async function Page() {
             size="md"
             radius="md"
             leftSection={<IconPlus size={20} />}
-            style={{ boxShadow: "0 4px 10px rgba(255, 145, 0, 0.3)", width: "fit-content" }}        >
+            style={{ boxShadow: "0 4px 10px rgba(255, 145, 0, 0.3)", width: "fit-content" }}
+          >
             {t("page.listings.Pridatnabidku")}
           </Button>
         </Link>

@@ -1,9 +1,5 @@
 import { randomUUID } from "node:crypto";
-import {
-  Container,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Container, Text, Title } from "@mantine/core";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -41,17 +37,17 @@ export default async function Page() {
     btnSubmit: t("page.Addlisting.button"),
   };
   const kategorieOptions = [
-    { value: 'Elektro', label: t("page.Categories.Electronics") },
-    { value: 'Nábytek', label: t("page.Categories.Furniture") },
-    { value: 'Oblečení', label: t("page.Categories.Clothing") },
-    { value: 'Vozidla', label: t("page.Categories.Vehicles") },
-    { value: 'Dětské věci', label: t("page.Categories.Children") },
-    { value: 'Zvířata', label: t("page.Categories.Animals") },
-    { value: 'Dům a zahrada', label: t("page.Categories.Home&Garden") },
-    { value: 'Hudba', label: t("page.Categories.Music") },
-    { value: 'Knihy', label: t("page.Categories.Books") },
-    { value: 'Sport', label: t("page.Categories.Sport") },
-    { value: 'Ostatní', label: t("page.Categories.Misc") },
+    { value: "Elektro", label: t("page.Categories.Electronics") },
+    { value: "Nábytek", label: t("page.Categories.Furniture") },
+    { value: "Oblečení", label: t("page.Categories.Clothing") },
+    { value: "Vozidla", label: t("page.Categories.Vehicles") },
+    { value: "Dětské věci", label: t("page.Categories.Children") },
+    { value: "Zvířata", label: t("page.Categories.Animals") },
+    { value: "Dům a zahrada", label: t("page.Categories.Home&Garden") },
+    { value: "Hudba", label: t("page.Categories.Music") },
+    { value: "Knihy", label: t("page.Categories.Books") },
+    { value: "Sport", label: t("page.Categories.Sport") },
+    { value: "Ostatní", label: t("page.Categories.Misc") },
   ];
   async function createInzerat(formData: FormData) {
     "use server";
@@ -63,7 +59,7 @@ export default async function Page() {
     const zdarma = formData.get("free") === "on"; // Checkbox vrací "on", pokud je zaškrtnutý
     const jmeno = formData.get("nameSurname") as string;
     const kontakt = formData.get("contact") as string;
-    const foto = formData.get("image") as string;
+    //const foto = formData.get("image") as string;
 
     // Pokud je zaškrtnuto zdarma, ignorujeme zadanou hodnotu a uložíme 0
     const cena = zdarma ? 0 : Number(cenaRaw) || 0;
@@ -98,9 +94,7 @@ export default async function Page() {
         {t("page.Addlisting.PageDescription")}
       </Text>
       {/* Vykreslíme klientský formulář a předáme mu serverovou ukládací funkci */}
-      <NovyInzeratFormular onSubmitAction={createInzerat}
-        t={tForm}
-        kategorieOptions={kategorieOptions} />
+      <NovyInzeratFormular onSubmitAction={createInzerat} t={tForm} kategorieOptions={kategorieOptions} />
     </Container>
   );
 }
