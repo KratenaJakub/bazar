@@ -59,7 +59,7 @@ export default async function Page() {
     const zdarma = formData.get("free") === "on"; // Checkbox vrací "on", pokud je zaškrtnutý
     const jmeno = formData.get("nameSurname") as string;
     const kontakt = formData.get("contact") as string;
-    //const foto = formData.get("image") as string;
+    const foto = formData.get("image") as string;
 
     // Pokud je zaškrtnuto zdarma, ignorujeme zadanou hodnotu a uložíme 0
     const cena = zdarma ? 0 : Number(cenaRaw) || 0;
@@ -76,7 +76,10 @@ export default async function Page() {
       description: popis,
       category: kategorie,
       price: cena,
-      status: "Aktivní", // Nový inzerát začíná vždy jako dostupný
+      status: "Aktivní",
+      NameSurname: jmeno,
+      contact: kontakt,
+      Photo: foto || "",
       //image: foto || "",
       // Pokud máš v DB samostatná pole pro jméno a kontakt, namapuj je sem.
       // Pokud ne, můžeš je dočasna uložit např. do popisu nebo polí k tomu určených.
