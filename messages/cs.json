@@ -13,10 +13,8 @@
       "title": "Domovská stránka",
       "description": "Vítejte na naší domovské stránce! Jsme rádi, že jste zde. Prozkoumejte naše služby a produkty, které vám mohou pomoci dosáhnout vašich cílů. Neváhejte nás kontaktovat pro více informací.",
       "button": "Prohlížet inzeráty"
-    }
-  },
-  "listings": {
-    "home": {
+    },
+    "listings": {
       "title": "Bazar",
       "description": "Interní bazar Blogic, nabízej věci kolegům k prodeji nebo zdarma. Platbu a předání si domluvíte mezi sebou.",
       "button": "Zobrazit detaily",
@@ -24,7 +22,53 @@
       "Kc": "Kč",
       "zdarma": "Zdarma",
       "Zadneinzeraty": "Žádné inzeráty k zobrazení",
-      "Pridatnabidku": "Přidat nabídku"
+      "Pridatnabidku": "Přidat nabídku",
+      "Dostupne": "Dostupné",
+      "Zarezervovano": "Zarezervováno",
+      "Prodano": "Prodáno"
+    },
+    "Addlisting": {
+      "title": "Přidat nabídku",
+      "PageDescription": "Zde můžete přidat nový inzerát do bazaru. Vyplňte všechny potřebné informace a klikněte na tlačítko 'Přidat', aby se váš inzerát zobrazil ostatním kolegům.",
+      "button": "Přidat",
+      "name": "Název",
+      "namePlaceholder": "Zadejte název inzerátu",
+      "description": "Popis",
+      "descriptionPlaceholder": "Zadejte popis inzerátu",
+      "price": "Cena (Kč)",
+      "pricePlaceholder": "Zadejte cenu inzerátu",
+      "zdarma": "Zdarma",
+      "category": "Kategorie",
+      "categoryPlaceholder": "Vyberte kategorii inzerátu",
+      "selectCategory": "Vyberte kategorii",
+      "contact": "Kontakt",
+      "contactPlaceholder": "Zadejte kontakt (e-mail nebo telefon)",
+      "nameSurname": "Jméno a příjmení",
+      "nameSurnamePlaceholder": "Zadejte své jméno a příjmení",
+      "Obrazek": "Obrázek",
+      "ObrazekPlaceholder": "Zadejte URL obrázku (nepovinné)"
+    },
+    "Categories": {
+      "Vehicles": "Vozidla",
+      "Children": "Dětské zboží",
+      "Animals": "Zvířata",
+      "Home&Garden": "Dům a zahrada",
+      "Electronics": "Elektronika",
+      "Sport": "Sport",
+      "Music": "Hudba",
+      "Books": "Knihy",
+      "Furniture": "Nábytek",
+      "Clothing": "Oblečení",
+      "Misc": "Ostatní"
+    },
+    "Detail": {
+      "title": "Detail inzerátu",
+      "description": "Zde můžete vidět podrobnosti o vybraném inzerátu. Pokud máte zájem, kontaktujte prodejce a domluvte se na dalším postupu.",
+      "kontakt": "Kontaktovat prodejce",
+      "Zpet": "← Zpět na přehled",
+      "Cena": "Cena:",
+      "Kategorie": "Kategorie:",
+      "Popis": "Popis:"
     }
   }
 }
