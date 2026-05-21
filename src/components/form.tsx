@@ -13,6 +13,8 @@ interface InzeratInitialData {
   nameSurname: string;
   contact: string;
   Photo?: string | null;
+  showQr?: boolean;
+  bankAccount?: string | null;
 }
 interface FormularProps {
   onSubmitAction: (formData: FormData) => Promise<void>;
@@ -41,7 +43,7 @@ interface FormularProps {
 export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOptions, initialData }: FormularProps) {
   const [isZdarma, setIsZdarma] = useState(initialData ? initialData.price === 0 : false);
   const [cena, setCena] = useState<number | string>(initialData ? initialData.price : 0);
-
+  const [showQr, setShowQr] = useState<boolean>(initialData?.showQr ?? false);
   // --- STAVY PRO VERIFIKACI E-MAILU ---
   const [email, setEmail] = useState(initialData?.contact || "");
   const [posilaSeEmail, setPosilaSeEmail] = useState(false);
@@ -137,6 +139,28 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
               onChange={(e) => handleZdarmaChange(e.currentTarget.checked)}
             />
           </Group>
+          <Stack gap="xs" mt="sm">
+            <Checkbox
+              label="Povolit platbu QR kódem"
+              name="showQrCheck" // name pro checkbox (Next ho pošle jako "on" nebo null)
+              checked={showQr}
+              onChange={(e) => setShowQr(e.currentTarget.checked)}
+            />
+
+            {showQr && (
+              <TextInput
+                label="Číslo bankovního účtu"
+                placeholder="Např. 123456789/0100"
+                name="bankAccount"
+                required
+                withAsterisk
+                w="30ch"
+                defaultValue={initialData?.bankAccount || ""}
+              />
+            )}
+            {/* Skrytý input pro boolean hodnotu showQr, aby se snadno posílala */}
+            <input type="hidden" name="showQr" value={showQr ? "true" : "false"} />
+          </Stack>
           <Group align="flex-end">
             <TextInput
               label={t.labelJmeno}

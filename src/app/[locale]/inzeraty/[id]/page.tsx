@@ -61,11 +61,15 @@ export default async function InzeratDetailPage({ params }: PageProps) {
     revalidatePath(`/inzeraty/${id}`);
     revalidatePath("/inzeraty");
   }
+  const bezpecnaData = {
+    ...data,
+    showQr: data.showQr ?? false, // 👈 Pokud je v DB null, podstrčíme false
+  };
 
   return (
     <Container size="xl" py="xl" style={{ marginLeft: 0, paddingLeft: 0 }}>
       <DetailInzeratu
-        inzerat={data}
+        inzerat={bezpecnaData}
         onDelete={deleteInzeratAction}
         onReserve={reserveInzeratAction}
         onSell={sellInzeratAction}

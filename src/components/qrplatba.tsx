@@ -6,20 +6,18 @@ import { QRCodeSVG } from "qrcode.react";
 interface PlatbaQRProps {
   cena: number;
   nazevInzeratu: string;
+  cisloUctu: string; // 👈 Přidáme prop pro reálný účet
 }
 
-export default function PlatbaQR({ cena, nazevInzeratu }: PlatbaQRProps) {
-  // Pokud je věc zdarma, QR kód nedává smysl
-  if (cena <= 0) return null;
+export default function PlatbaQR({ cena, nazevInzeratu, cisloUctu }: PlatbaQRProps) {
+  if (cena <= 0 || !cisloUctu) return null;
 
-  // Formát pro reálnou českou QR platbu (SPAYD)
-  // Účet a kód banky jsou vymyšlené (1234567890/0100)
-  const ucet = "1234567890";
-  const banka = "0100";
+  // Rozdělíme číslo účtu a kód banky (očekáváme formát 123456789/0100)
+  const [ucet, banka] = cisloUctu.split("/");
 
-  // Sestavení textu pro QR kód. Diakritiku raději odstraníme pomocí normalize
   const cistyNazev = nazevInzeratu.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  const qrHodnota = `SPD*1.0*ACC:${ucet}${banka}*AM:${cena}*CC:CZK*MSG:${cistyNazev.substring(0, 20)}`;
+  // Sestavení SPAYD řetězce s dynamickým účtem
+  const qrHodnota = `SPD*1.0*ACC:${ucet}${banka || ""}*AM:${cena}*CC:CZK*MSG:${cistyNazev.substring(0, 20)}`;
 
   return (
     <Paper withBorder p="md" radius="md" style={{ maxWidth: 300, textAlign: "center" }}>

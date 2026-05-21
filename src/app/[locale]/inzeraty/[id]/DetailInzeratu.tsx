@@ -17,6 +17,8 @@ interface DetailProps {
     NameSurname: string;
     contact: string;
     Photo: string;
+    showQr: boolean;
+    bankAccount: string | null;
   };
   onDelete: () => Promise<void>;
   onReserve: () => Promise<void>;
@@ -87,7 +89,11 @@ export default function DetailInzeratu({ inzerat, onDelete, onReserve, onSell }:
               <Text size="lg" fw={700}>
                 Cena: {inzerat.price === 0 ? "Zdarma" : `${inzerat.price} Kč`}
               </Text>
-              <PlatbaQR cena={inzerat.price} nazevInzeratu={inzerat.name} />
+              {inzerat.showQr && inzerat.bankAccount && (
+                <div style={{ marginTop: "20px" }}>
+                  <PlatbaQR cena={inzerat.price} nazevInzeratu={inzerat.name} cisloUctu={inzerat.bankAccount} />
+                </div>
+              )}
             </Group>
           </Stack>
         </Paper>
