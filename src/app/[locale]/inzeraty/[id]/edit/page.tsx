@@ -80,6 +80,8 @@ export default async function Page({ params }: EditPageProps) {
     const jmeno = formData.get("nameSurname") as string;
     const kontakt = formData.get("contact") as string;
     const foto = formData.get("image") as string;
+    const showQr = formData.get("showQr") === "true";
+    const bankAccount = formData.get("bankAccount") as string;
 
     const cena = zdarma ? 0 : Number(cenaRaw) || 0;
 
@@ -98,6 +100,8 @@ export default async function Page({ params }: EditPageProps) {
         NameSurname: jmeno,
         contact: kontakt,
         Photo: foto || "",
+        showQr: showQr,
+        bankAccount: showQr ? bankAccount : null,
       })
       .where(eq(listings.id, id)); // 👈 Aktualizujeme pouze inzerát s tímto ID
 
@@ -114,6 +118,8 @@ export default async function Page({ params }: EditPageProps) {
     nameSurname: inzerat.NameSurname ?? "", // Mapování z DB (NameSurname) do formuláře (nameSurname)
     contact: inzerat.contact ?? "",
     Photo: inzerat.Photo ?? "",
+    showQr: Boolean(inzerat.showQr), // Ujistíme se, že je to boolean
+    bankAccount: inzerat.bankAccount ?? "",
   };
 
   return (

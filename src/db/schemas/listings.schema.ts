@@ -10,5 +10,7 @@ export const listings = sqliteTable("listings", {
   NameSurname: text("NameSurname").notNull(),
   contact: text("contact").notNull(),
   Photo: text("Photo").notNull(),
+  showQr: integer("show_qr", { mode: "boolean" }).default(false),
+  bankAccount: text("bank_account"),
 });
 export type Listing = typeof listings.$inferSelect;
