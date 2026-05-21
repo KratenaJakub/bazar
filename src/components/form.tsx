@@ -155,7 +155,6 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
                   label={t.labelKontakt}
                   placeholder={t.placeholderKontakt}
                   required
-                  name="contact"
                   withAsterisk
                   w="30ch"
                   type="email"
@@ -164,6 +163,7 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
                   onChange={(e) => setEmail(e.currentTarget.value)}
                   error={verifikaceError}
                 />
+                <input type="hidden" name="contact" value={email} />
 
                 {/* Tlačítko pro zaslání kódu */}
                 {!isEmailOveren && !kodOdeslan && (
