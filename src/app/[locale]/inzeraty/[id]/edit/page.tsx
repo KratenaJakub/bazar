@@ -1,24 +1,37 @@
-import { randomUUID } from "node:crypto";
 import { Container, Text, Title } from "@mantine/core";
+import { eq } from "drizzle-orm"; // 👈 Potřebujeme pro vyhledání podle ID
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import NovyInzeratFormular from "@/components/form";
 import { db } from "@/db";
 import { listings } from "@/db/schemas";
 
-// 1. Přidání podpory asynchronních parametrů (pro konzistenci s Next.js 15+)
-export async function generateMetadata(): Promise<Metadata> {
+interface EditPageProps {
+  params: Promise<{ id: string }>; // 👈 Next.js 15+ předává params jako Promise
+}
+
+export async function generateMetadata({ params }: EditPageProps): Promise<Metadata> {
   const t = await getTranslations();
+  const { id } = await params;
 
   return {
-    title: t("page.Addlisting.title"),
+    title: `${t("page.Addlisting.title")} - Editace #${id}`,
     description: t("page.Addlisting.PageDescription"),
   };
 }
 
-export default async function Page() {
+export default async function Page({ params }: EditPageProps) {
   const t = await getTranslations();
+  const { id } = await params;
+
+  // 1. Načtení stávajících dat inzerátu z databáze podle ID z URL
+  const inzerat = await db.select().from(listings).where(eq(listings.id, id)).get();
+
+  // Pokud inzerát s tímto ID neexistuje, zobrazíme 404
+  if (!inzerat) {
+    notFound();
+  }
 
   const tForm = {
     labelNazev: t("page.Addlisting.name"),
@@ -37,6 +50,7 @@ export default async function Page() {
     labelObrazek: t("page.Addlisting.Obrazek"),
     placeholderObrazek: t("page.Addlisting.ObrazekPlaceholder"),
     btnSubmit: t("page.Addlisting.button"),
+    btnEditSubmit: "Uložit změny", // 👈 Text pro editační tlačítko
   };
 
   const kategorieOptions = [
@@ -53,7 +67,8 @@ export default async function Page() {
     { value: "Ostatní", label: t("page.Categories.Misc") },
   ];
 
-  async function createInzerat(formData: FormData) {
+  // SERVER ACTION: Aktualizace inzerátu v databázi (UPDATE)
+  async function updateInzerat(formData: FormData) {
     "use server";
 
     const nazev = formData.get("name") as string;
@@ -71,35 +86,50 @@ export default async function Page() {
       throw new Error("Všechna povinná pole musí být vyplněna.");
     }
 
-    await db.insert(listings).values({
-      id: randomUUID(),
-      name: nazev,
-      description: popis,
-      category: kategorie,
-      price: cena,
-      status: "Aktivní",
-      NameSurname: jmeno,
-      contact: kontakt,
-      Photo: foto || "",
-    });
+    // 2. Provedeme SQL UPDATE namísto INSERT
+    await db
+      .update(listings)
+      .set({
+        name: nazev,
+        description: popis,
+        category: kategorie,
+        price: cena,
+        NameSurname: jmeno,
+        contact: kontakt,
+        Photo: foto || "",
+      })
+      .where(eq(listings.id, id)); // 👈 Aktualizujeme pouze inzerát s tímto ID
 
-    redirect("/inzeraty");
+    // Po úspěšné editaci přesměrujeme uživatele zpět na detail inzerátu
+    redirect(`/inzeraty/${id}`);
   }
+
+  // 3. Převod dat z DB struktury na strukturu, kterou očekává tvůj formulář v initialData
+  const initialDataData = {
+    name: inzerat.name ?? "",
+    description: inzerat.description ?? "",
+    category: inzerat.category ?? "",
+    price: inzerat.price ?? 0,
+    nameSurname: inzerat.NameSurname ?? "", // Mapování z DB (NameSurname) do formuláře (nameSurname)
+    contact: inzerat.contact ?? "",
+    Photo: inzerat.Photo ?? "",
+  };
 
   return (
     <Container size="sm" pt={0} style={{ marginLeft: 0, paddingLeft: 0 }}>
       <Title order={1} mt={0} mb="md">
-        {t("page.Addlisting.title")}
+        Upravit inzerát
       </Title>
       <Text c="dimmed" mb="xl">
-        {t("page.Addlisting.PageDescription")}
+        Zde můžete upravit parametry vašeho stávajícího inzerátu.
       </Text>
 
-      {/* 2. initialData zde záměrně nevyplňujeme, čímž formulář ví, že tvoří prázdný nový inzerát */}
+      {/* Vykreslíme tvůj klientský formulář, předáme mu update funkci a stávající data */}
       <NovyInzeratFormular
-        onSubmitAction={createInzerat}
+        onSubmitAction={updateInzerat}
         t={tForm}
         kategorieOptions={kategorieOptions}
+        initialData={initialDataData} // 👈 Předání načtených dat pro předvyplnění v form.tsx
       />
     </Container>
   );

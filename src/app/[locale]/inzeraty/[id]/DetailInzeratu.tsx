@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, Group, Image, Modal, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -36,10 +37,25 @@ export default function DetailInzeratu({ inzerat, onDelete, onReserve, onSell }:
   return (
     <Stack gap="xl">
       {/* Odkaz zpět */}
-      <Link href="/inzeraty" style={{ textDecoration: "none", color: "var(--mantine-color-blue-filled)" }}>
-        ← Zpět na přehled
-      </Link>
-
+      <Group justify="space-between" align="center">
+        <Link href="/inzeraty" style={{ textDecoration: "none", color: "var(--mantine-color-blue-filled)" }}>
+          ← Zpět na přehled
+        </Link>
+        <Link
+          href={`/inzeraty/${inzerat.id}/edit`}
+          style={{ textDecoration: "none", color: "var(--mantine-color-blue-filled)" }}
+        >
+          <Button
+            color="orange"
+            size="md"
+            radius="md"
+            leftSection={<IconEdit size={20} />}
+            style={{ boxShadow: "0 4px 10px rgba(255, 145, 0, 0.3)", width: "fit-content" }}
+          >
+            Upravit inzerát
+          </Button>
+        </Link>
+      </Group>
       {/* Dvousloupcový layout: Na mobilu pod sebou, na desktopu vedle sebe */}
       <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
         {/* LEVÁ ČÁST: Sjednocené informace v jednom Paperu */}
