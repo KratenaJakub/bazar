@@ -1,9 +1,10 @@
 "use client";
 
 import { Button, Checkbox, Group, NumberInput, Paper, Select, Stack, Textarea, TextInput } from "@mantine/core";
+import { IconCheck } from "@tabler/icons-react"; // Volitelné ikonky, pokud máš Tabler
 import { useState } from "react";
+import { overitKodAction, poslatOverovaciEmail } from "@/app/actions/authactions"; // 👈 Import nových akcí
 
-// 1. Přidáme definici dat pro případnou editaci
 interface InzeratInitialData {
   name: string;
   description: string;
@@ -11,13 +12,12 @@ interface InzeratInitialData {
   price: number;
   nameSurname: string;
   contact: string;
-  Photo?: string | null; // Přizpůsobeno tvé DB (Photo / image)
+  Photo?: string | null;
 }
-
 interface FormularProps {
   onSubmitAction: (formData: FormData) => Promise<void>;
   kategorieOptions: { value: string; label: string }[];
-  initialData?: InzeratInitialData; // 👈 Volitelná data pro editaci
+  initialData?: InzeratInitialData; // Přidáno pro editační režim z předchozího kroku
   t: {
     labelNazev: string;
     placeholderNazev: string;
@@ -35,19 +35,55 @@ interface FormularProps {
     labelObrazek: string;
     placeholderObrazek: string;
     btnSubmit: string;
-    btnEditSubmit?: string; // Volitelný překlad pro uložení změn (např. "Uložit změny")
   };
 }
 
 export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOptions, initialData }: FormularProps) {
-  // 2. Inicializace stavů podle toho, zda upravujeme nebo tvoříme nový
   const [isZdarma, setIsZdarma] = useState(initialData ? initialData.price === 0 : false);
   const [cena, setCena] = useState<number | string>(initialData ? initialData.price : 0);
+
+  // --- STAVY PRO VERIFIKACI E-MAILU ---
+  const [email, setEmail] = useState(initialData?.contact || "");
+  const [posilaSeEmail, setPosilaSeEmail] = useState(false);
+  const [kodOdeslan, setKodOdeslan] = useState(false);
+  const [serverovyHash, setServerovyHash] = useState("");
+  const [zadanyKod, setZadanyKod] = useState("");
+  const [isEmailOveren, setIsEmailOveren] = useState(Boolean(initialData)); // Při editaci předpokládáme ověřeno
+  const [verifikaceError, setVerifikaceError] = useState<string | null>(null);
 
   const handleZdarmaChange = (checked: boolean) => {
     setIsZdarma(checked);
     if (checked) {
       setCena(0);
+    }
+  };
+
+  // 1. Spuštění odeslání e-mailu
+  const handlePoslatKod = async () => {
+    setVerifikaceError(null);
+    setPosilaSeEmail(true);
+
+    const res = await poslatOverovaciEmail(email);
+    setPosilaSeEmail(false);
+
+    if (res.success && res.hash) {
+      setKodOdeslan(true);
+      setServerovyHash(res.hash);
+    } else {
+      setVerifikaceError(res.error || "Chyba při odesílání.");
+    }
+  };
+
+  // 2. Ověření přepsaného kódu uživatelem
+  const handleOveritKod = async () => {
+    setVerifikaceError(null);
+    const res = await overitKodAction(email, zadanyKod, serverovyHash);
+
+    if (res.success) {
+      setIsEmailOveren(true);
+      setKodOdeslan(false);
+    } else {
+      setVerifikaceError(res.error || "Nesprávný kód.");
     }
   };
 
@@ -61,7 +97,7 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
             required
             name="name"
             withAsterisk
-            defaultValue={initialData?.name || ""} // 👈 Předvyplnění
+            defaultValue={initialData?.name || ""}
           />
           <Textarea
             label={t.labelPopis}
@@ -69,7 +105,7 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
             required
             name="description"
             withAsterisk
-            defaultValue={initialData?.description || ""} // 👈 Předvyplnění
+            defaultValue={initialData?.description || ""}
           />
           <Select
             label={t.labelKategorie}
@@ -79,7 +115,7 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
             required
             withAsterisk
             comboboxProps={{ dropdownPadding: 0, position: "bottom" }}
-            defaultValue={initialData?.category || null} // 👈 Předvyplnění
+            defaultValue={initialData?.category || null}
           />
           <Group align="flex-end">
             <NumberInput
@@ -109,28 +145,80 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
               name="nameSurname"
               withAsterisk
               w="25ch"
-              defaultValue={initialData?.nameSurname || ""} // 👈 Předvyplnění
+              defaultValue={initialData?.nameSurname || ""}
             />
-            <TextInput
-              label={t.labelKontakt}
-              placeholder={t.placeholderKontakt}
-              required
-              name="contact"
-              withAsterisk
-              w="30ch"
-              defaultValue={initialData?.contact || ""} // 👈 Předvyplnění
-            />
+
+            {/* SEKCE PRO E-MAIL A JEHO VERIFIKACI */}
+            <Stack gap={2} align="flex-start">
+              <Group align="flex-end" gap="xs">
+                <TextInput
+                  label={t.labelKontakt}
+                  placeholder={t.placeholderKontakt}
+                  required
+                  name="contact"
+                  withAsterisk
+                  w="30ch"
+                  type="email"
+                  value={email}
+                  disabled={isEmailOveren || kodOdeslan} // Zamkneme pole během ověřování
+                  onChange={(e) => setEmail(e.currentTarget.value)}
+                  error={verifikaceError}
+                />
+
+                {/* Tlačítko pro zaslání kódu */}
+                {!isEmailOveren && !kodOdeslan && (
+                  <Button
+                    onClick={handlePoslatKod}
+                    loading={posilaSeEmail}
+                    disabled={!email.includes("@")}
+                    variant="light"
+                    color="blue"
+                  >
+                    Ověřit e-mail
+                  </Button>
+                )}
+
+                {/* Indikátor úspěšného ověření */}
+                {isEmailOveren && (
+                  <Button variant="light" color="green" disabled leftSection={<IconCheck size={16} />}>
+                    Ověřeno
+                  </Button>
+                )}
+              </Group>
+
+              {/* Políčko pro zadání kódu, které vyskočí po odeslání */}
+              {kodOdeslan && (
+                <Group align="flex-end" gap="xs" mt="xs">
+                  <TextInput
+                    placeholder="Zadejte 6místný kód"
+                    w="18ch"
+                    value={zadanyKod}
+                    onChange={(e) => setZadanyKod(e.currentTarget.value)}
+                  />
+                  <Button color="green" onClick={handleOveritKod}>
+                    Potvrdit kód
+                  </Button>
+                  <Button variant="subtle" color="dimmed" onClick={() => setKodOdeslan(false)}>
+                    Zrušit
+                  </Button>
+                </Group>
+              )}
+            </Stack>
           </Group>
+
           <TextInput
             label={t.labelObrazek}
             placeholder={t.placeholderObrazek}
             name="image"
             w="30ch"
-            defaultValue={initialData?.Photo || ""} // 👈 Předvyplnění (pokud v DB používáš Photo)
+            defaultValue={initialData?.Photo || ""}
           />
+
           <Group justify="flex-end" mt="md">
-            {/* 3. Dynamický text tlačítka (Uložit změny vs Vytvořit) */}
-            <Button type="submit">{initialData ? t.btnEditSubmit || "Uložit změny" : t.btnSubmit}</Button>
+            {/* BUTTON SE ODPOUTÁ A BUDE KLIKACÍ POUZE POKUD JE EMAIL OVĚŘENÝ */}
+            <Button type="submit" disabled={!isEmailOveren}>
+              {initialData ? "Uložit změny" : t.btnSubmit}
+            </Button>
           </Group>
         </Stack>
       </Paper>
