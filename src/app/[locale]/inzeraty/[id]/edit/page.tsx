@@ -1,6 +1,7 @@
 import { Container, Text, Title } from "@mantine/core";
 import { eq } from "drizzle-orm"; // 👈 Potřebujeme pro vyhledání podle ID
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import NovyInzeratFormular from "@/components/form";
@@ -117,6 +118,9 @@ export default async function Page({ params }: EditPageProps) {
 
   return (
     <Container size="sm" pt={0} style={{ marginLeft: 0, paddingLeft: 0 }}>
+      <Link href={`/inzeraty/${id}`} style={{ textDecoration: "none", color: "var(--mantine-color-blue-filled)" }}>
+        ← Zpět na inzerát
+      </Link>
       <Title order={1} mt={0} mb="md">
         Upravit inzerát
       </Title>

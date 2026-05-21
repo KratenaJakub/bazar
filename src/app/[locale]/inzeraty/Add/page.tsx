@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Container, Text, Title } from "@mantine/core";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import NovyInzeratFormular from "@/components/form";
@@ -88,6 +89,9 @@ export default async function Page() {
 
   return (
     <Container size="sm" pt={0} style={{ marginLeft: 0, paddingLeft: 0 }}>
+      <Link href="/inzeraty" style={{ textDecoration: "none", color: "var(--mantine-color-blue-filled)" }}>
+        ← Zpět na přehled
+      </Link>
       <Title order={1} mt={0} mb="md">
         {t("page.Addlisting.title")}
       </Title>
