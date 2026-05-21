@@ -96,11 +96,7 @@ export default async function Page() {
       </Text>
 
       {/* 2. initialData zde záměrně nevyplňujeme, čímž formulář ví, že tvoří prázdný nový inzerát */}
-      <NovyInzeratFormular
-        onSubmitAction={createInzerat}
-        t={tForm}
-        kategorieOptions={kategorieOptions}
-      />
+      <NovyInzeratFormular onSubmitAction={createInzerat} t={tForm} kategorieOptions={kategorieOptions} />
     </Container>
   );
 }
