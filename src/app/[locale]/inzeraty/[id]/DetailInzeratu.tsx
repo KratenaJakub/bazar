@@ -4,6 +4,7 @@ import { Button, Group, Image, Modal, Paper, SimpleGrid, Stack, Text, Title } fr
 import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
+import PlatbaQR from "@/components/qrplatba";
 
 interface DetailProps {
   inzerat: {
@@ -86,6 +87,7 @@ export default function DetailInzeratu({ inzerat, onDelete, onReserve, onSell }:
               <Text size="lg" fw={700}>
                 Cena: {inzerat.price === 0 ? "Zdarma" : `${inzerat.price} Kč`}
               </Text>
+              <PlatbaQR cena={inzerat.price} nazevInzeratu={inzerat.name} />
             </Group>
           </Stack>
         </Paper>
