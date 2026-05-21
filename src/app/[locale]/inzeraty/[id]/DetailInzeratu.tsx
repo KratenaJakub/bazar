@@ -52,13 +52,15 @@ export default function DetailInzeratu({ inzerat, onDelete, onReserve, onSell }:
               <Title order={1} mt="xs">
                 {inzerat.name}
               </Title>
-              <Text size="sm" c={inzerat.status === "Aktivní" ? "green" : "orange"} fw={500} mt={4}>
-                Stav: {inzerat.status}
-              </Text>
+              <Text>{inzerat.status}</Text>
             </div>
 
             <Text style={{ whiteSpace: "pre-line" }}>{inzerat.description}</Text>
-
+            <Stack gap="0" c="dimmed">
+              <Text>Kontakt:</Text>
+              <Text>Jméno a příjmení: {inzerat.NameSurname}</Text>
+              <Text>Kontakt: {inzerat.contact}</Text>
+            </Stack>
             <Group
               justify="space-between"
               mt="xl"

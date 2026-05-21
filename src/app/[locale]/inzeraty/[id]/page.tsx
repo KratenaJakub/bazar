@@ -43,7 +43,7 @@ export default async function InzeratDetailPage({ params }: PageProps) {
     if (!aktualni) return;
 
     // 2. Určíme nový stav: pokud už je rezervovaný, vrátíme ho jako aktivní
-    const novyStav = aktualni.status === "Rezervováno" ? "active" : "Rezervováno";
+    const novyStav = aktualni.status === "Rezervováno" ? "Aktivní" : "Rezervováno";
 
     // 3. Uložíme změnu do databáze
     await db.update(listings).set({ status: novyStav }).where(eq(listings.id, id));

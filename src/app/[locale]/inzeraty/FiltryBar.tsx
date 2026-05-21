@@ -6,12 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 
-// NAPEVNO DEFINOVANÉ KATEGORIE (Uprav si je podle potřeb formuláře)
 export default function FiltryBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // 1. LOKÁLNÍ STAVY PRO VŠECHNY ČTYŘI PRVKY
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [kategorie, setKategorie] = useState<string | null>(searchParams.get("kategorie"));
   const [stav, setStav] = useState<string | null>(searchParams.get("stav"));
@@ -25,8 +23,8 @@ export default function FiltryBar() {
     const params = new URLSearchParams();
 
     if (debouncedSearch) params.set("search", debouncedSearch);
-    if (kategorie) params.set("kategorie", kategorie);
-    if (stav) params.set("stav", stav);
+    if (kategorie) params.set("category", kategorie);
+    if (stav) params.set("status", stav);
     if (zdarma) params.set("zdarma", "true");
 
     // Zápis do URL adresy vyvolá překreslení serverové komponenty s novými daty
@@ -50,14 +48,16 @@ export default function FiltryBar() {
           label="Kategorie"
           placeholder="Všechny"
           data={[
-            { value: "elektro", label: "Elektro" },
-            { value: "nabytek", label: "Nábytek" },
-            { value: "obleceni", label: "Oblečení" },
-            { value: "detske-veci", label: "Dětské věci" },
-            { value: "knihy", label: "Knihy" },
-            { value: "sport", label: "Sport" },
-            { value: "ostatni", label: "Ostatní" },
-            { value: "kuchyne", label: "Kuchyně" },
+            { value: "Dům a zahrada", label: "Dům a zahrada" },
+            { value: "Elektronika", label: "Elektro" },
+            { value: "Nábytek", label: "Nábytek" },
+            { value: "Oblečení", label: "Oblečení" },
+            { value: "Dětské zboží", label: "Dětské věci" },
+            { value: "Knihy", label: "Knihy" },
+            { value: "Sport", label: "Sport" },
+            { value: "Vozidla", label: "Vozidla" },
+            { value: "Hudba", label: "Hudba" },
+            { value: "Ostatní", label: "Ostatní" },
           ]}
           value={kategorie}
           onChange={setKategorie}
@@ -69,9 +69,9 @@ export default function FiltryBar() {
           label="Stav"
           placeholder="Všechny"
           data={[
-            { value: "aktivni", label: "Dostupné" },
-            { value: "rezervovano", label: "Rezervováno" },
-            { value: "prodano", label: "Prodáno" },
+            { value: "Aktivní", label: "Dostupné" },
+            { value: "Rezervováno", label: "Rezervováno" },
+            { value: "Prodáno", label: "Prodáno" },
           ]}
           value={stav}
           onChange={setStav}

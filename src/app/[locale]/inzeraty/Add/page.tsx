@@ -37,11 +37,11 @@ export default async function Page() {
     btnSubmit: t("page.Addlisting.button"),
   };
   const kategorieOptions = [
-    { value: "Elektro", label: t("page.Categories.Electronics") },
+    { value: "Elektronika", label: t("page.Categories.Electronics") },
     { value: "Nábytek", label: t("page.Categories.Furniture") },
     { value: "Oblečení", label: t("page.Categories.Clothing") },
     { value: "Vozidla", label: t("page.Categories.Vehicles") },
-    { value: "Dětské věci", label: t("page.Categories.Children") },
+    { value: "Dětské zboží", label: t("page.Categories.Children") },
     { value: "Zvířata", label: t("page.Categories.Animals") },
     { value: "Dům a zahrada", label: t("page.Categories.Home&Garden") },
     { value: "Hudba", label: t("page.Categories.Music") },
