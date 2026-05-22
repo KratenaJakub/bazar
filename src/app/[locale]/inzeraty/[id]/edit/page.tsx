@@ -82,6 +82,7 @@ export default async function Page({ params }: EditPageProps) {
     const foto = formData.get("image") as string;
     const showQr = formData.get("showQr") === "true";
     const bankAccount = formData.get("bankAccount") as string;
+    const address = formData.get("address") as string;
 
     const cena = zdarma ? 0 : Number(cenaRaw) || 0;
 
@@ -102,6 +103,7 @@ export default async function Page({ params }: EditPageProps) {
         Photo: foto || "",
         showQr: showQr,
         bankAccount: showQr ? bankAccount : null,
+        address: address || "",
       })
       .where(eq(listings.id, id)); // 👈 Aktualizujeme pouze inzerát s tímto ID
 
@@ -120,6 +122,7 @@ export default async function Page({ params }: EditPageProps) {
     Photo: inzerat.Photo ?? "",
     showQr: Boolean(inzerat.showQr), // Ujistíme se, že je to boolean
     bankAccount: inzerat.bankAccount ?? "",
+    address: inzerat.address ?? "",
   };
 
   return (

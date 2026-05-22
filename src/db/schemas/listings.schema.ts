@@ -12,5 +12,6 @@ export const listings = sqliteTable("listings", {
   Photo: text("Photo").notNull(),
   showQr: integer("show_qr", { mode: "boolean" }).default(false),
   bankAccount: text("bank_account"),
+  address: text("address"),
 });
 export type Listing = typeof listings.$inferSelect;

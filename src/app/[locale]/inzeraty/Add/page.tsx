@@ -67,6 +67,7 @@ export default async function Page() {
     const foto = formData.get("image") as string;
     const showQr = formData.get("showQr") === "true";
     const bankAccount = formData.get("bankAccount") as string;
+    const address = formData.get("address") as string;
 
     const cena = zdarma ? 0 : Number(cenaRaw) || 0;
 
@@ -86,6 +87,7 @@ export default async function Page() {
       Photo: foto || "",
       showQr: showQr,
       bankAccount: showQr ? bankAccount : null, // Uložíme účet jen pokud je QR aktivní
+      address: address || "",
     });
 
     redirect("/inzeraty");

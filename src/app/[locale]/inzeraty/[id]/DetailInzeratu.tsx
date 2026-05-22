@@ -4,6 +4,7 @@ import { Button, Group, Image, Modal, Paper, SimpleGrid, Stack, Text, Title } fr
 import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
+import InzeratMapa from "@/components/inzeratmapa";
 import PlatbaQR from "@/components/qrplatba";
 
 interface DetailProps {
@@ -19,6 +20,7 @@ interface DetailProps {
     Photo: string;
     showQr: boolean;
     bankAccount: string | null;
+    address: string | null | undefined;
   };
   onDelete: () => Promise<void>;
   onReserve: () => Promise<void>;
@@ -75,6 +77,7 @@ export default function DetailInzeratu({ inzerat, onDelete, onReserve, onSell }:
             </div>
 
             <Text style={{ whiteSpace: "pre-line" }}>{inzerat.description}</Text>
+            <InzeratMapa adresa={inzerat.address} />
             <Stack gap="0" c="dimmed">
               <Text>Kontakt:</Text>
               <Text>Jméno a příjmení: {inzerat.NameSurname}</Text>
