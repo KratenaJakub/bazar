@@ -160,6 +160,7 @@ export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
             value={cenaRange}
             onChange={setCenaRange}
             onChangeEnd={handleCenaChangeEnd}
+            minRange={0}
             color="orange"
             size="sm"
             radius="md"
