@@ -32,7 +32,7 @@ export default function FiltryBar() {
   }, [debouncedSearch, kategorie, stav, zdarma, router]);
 
   return (
-    <Paper withBorder radius="md" p="md" bg="var(--mantine-color-gray-0)">
+    <Paper withBorder radius="md" p="md" bg="light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))">
       <SimpleGrid cols={{ base: 1, sm: 4 }} spacing="md">
         {/* 1. Vyhledávací pole (Nalevo) */}
         <TextInput
