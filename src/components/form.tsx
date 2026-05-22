@@ -1,9 +1,9 @@
 "use client";
 
 import { Button, Checkbox, Group, NumberInput, Paper, Select, Stack, Textarea, TextInput } from "@mantine/core";
-import { IconCheck } from "@tabler/icons-react"; // Volitelné ikonky, pokud máš Tabler
+import { IconCheck, IconMapPin } from "@tabler/icons-react";
 import { useState } from "react";
-import { overitKodAction, poslatOverovaciEmail } from "@/app/actions/authactions"; // 👈 Import nových akcí
+import { overitKodAction, poslatOverovaciEmail } from "@/app/actions/authactions";
 
 interface InzeratInitialData {
   name: string;
@@ -15,6 +15,7 @@ interface InzeratInitialData {
   Photo?: string | null;
   showQr?: boolean;
   bankAccount?: string | null;
+  address?: string | null;
 }
 interface FormularProps {
   onSubmitAction: (formData: FormData) => Promise<void>;
@@ -119,6 +120,16 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
             comboboxProps={{ dropdownPadding: 0, position: "bottom" }}
             defaultValue={initialData?.category || null}
           />
+          <TextInput
+            label="Lokalita / Adresa"
+            placeholder="Např. Zlín, Brno-střed, nebo konkrétní ulice..."
+            name="address" // klíčové pro FormData
+            defaultValue={initialData?.address || ""}
+            leftSection={<IconMapPin size={16} stroke={1.5} />}
+            radius="md"
+            mt="md"
+          />
+
           <Group align="flex-end">
             <NumberInput
               label={t.labelCena}
