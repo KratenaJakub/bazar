@@ -2,6 +2,7 @@
 
 import { AppShell, Container, Group } from "@mantine/core";
 import type { PropsWithChildren } from "react";
+import DarkModeToggle from "@/components/DarkMode";
 import { PageLogo } from "@/components/layout/PageLogo";
 
 const HEADER_HEIGHT = 90;
@@ -10,10 +11,17 @@ const BODY_MAX_WIDTH = 1280;
 export function PageLayout({ children }: PropsWithChildren) {
   return (
     <AppShell header={{ height: HEADER_HEIGHT }} padding="md" withBorder={false}>
-      <AppShell.Header px="md">
+      <AppShell.Header
+        px="md"
+        style={{
+          backgroundColor: "#FFFFFF",
+          borderBottom: "1px solid var(--mantine-color-gray-3)",
+        }}
+      >
         <Container size={BODY_MAX_WIDTH} h="100%">
           <Group h="100%" align="center" justify="space-between">
             <PageLogo />
+            <DarkModeToggle />
           </Group>
         </Container>
       </AppShell.Header>
