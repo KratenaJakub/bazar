@@ -1,6 +1,6 @@
 import { Badge, Button, Card, CardSection, Group, Image, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { and, eq, gte, like, lte, max, min, or } from "drizzle-orm"; // 🌟 Přidán gte a lte
+import { and, eq, gte, like, lte, max, min, or, sql } from "drizzle-orm"; // 🌟 Přidán gte a lte
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -45,7 +45,28 @@ export default async function Page({ searchParams }: PageProps) {
 
   // A. Vyhledávání textu
   if (params.search) {
-    conditions.push(or(like(listings.name, `%${params.search}%`), like(listings.description, `%${params.search}%`)));
+    const text = params.search;
+
+    // Vytvoříme varianty textu pro vyhledávání
+    const textLower = `%${text.toLowerCase()}%`; // např. "%židle%"
+    const textOriginal = `%${text}%`; // např. "%Židle%"
+
+    // Vygenerujeme variantu s velkým prvním písmenem (pro případ, že uživatel zadal malé)
+    const textCapitalized = `%${text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()}%`; // např. "%Židle%"
+
+    conditions.push(
+      or(
+        // Prohledáváme Název inzerátu všemi variantami
+        like(listings.name, textOriginal),
+        like(listings.name, textLower),
+        like(listings.name, textCapitalized),
+
+        // Prohledáváme Popis inzerátu všemi variantami
+        like(listings.description, textOriginal),
+        like(listings.description, textLower),
+        like(listings.description, textCapitalized),
+      ),
+    );
   }
 
   // B. Filtrování podle kategorie
