@@ -1,6 +1,6 @@
 import { Badge, Button, Card, CardSection, Group, Image, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { and, eq, like, or } from "drizzle-orm";
+import { and, eq, gte, like, lte, max, min, or } from "drizzle-orm"; // 🌟 Přidán gte a lte
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -14,10 +14,10 @@ interface PageProps {
     category?: string;
     minPrice?: string;
     maxPrice?: string;
-    zdarma?: string;
     status?: string;
   }>;
 }
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
 
@@ -28,9 +28,22 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page({ searchParams }: PageProps) {
+  // 1. Zjistíme absolutní min a max cenu ze všech inzerátů v DB
+  const [cenyDb] = await db
+    .select({
+      absolutniMin: min(listings.price),
+      absolutniMax: max(listings.price),
+    })
+    .from(listings);
+
+  const minCenaZDb = cenyDb?.absolutniMin ?? 0;
+  const maxCenaZDb = cenyDb?.absolutniMax ?? 10000;
+
   const t = await getTranslations();
   const params = await searchParams;
   const conditions = [];
+
+  // A. Vyhledávání textu
   if (params.search) {
     conditions.push(or(like(listings.name, `%${params.search}%`), like(listings.description, `%${params.search}%`)));
   }
@@ -40,6 +53,7 @@ export default async function Page({ searchParams }: PageProps) {
     conditions.push(eq(listings.category, params.category));
   }
 
+  // C. Filtrování podle stavu
   if (params.status) {
     if (params.status === "active") {
       conditions.push(or(eq(listings.status, "active"), eq(listings.status, "Aktivní")));
@@ -48,15 +62,23 @@ export default async function Page({ searchParams }: PageProps) {
     }
   }
 
-  // D. BONUS: Pokud bys tam přece jen vracel to políčko "Pouze věci zdarma" (např. params.zdarma === "true")
-  if (params.zdarma === "true") {
-    conditions.push(eq(listings.price, 0));
+  // 🌟 D. Nové filtrování rozsahem cen ze Slideru
+  const vybranaMinCena = params.minPrice ? Number(params.minPrice) : minCenaZDb;
+  const vybranaMaxCena = params.maxPrice ? Number(params.maxPrice) : maxCenaZDb;
+
+  if (!Number.isNaN(vybranaMinCena)) {
+    conditions.push(gte(listings.price, vybranaMinCena));
   }
+  if (!Number.isNaN(vybranaMaxCena)) {
+    conditions.push(lte(listings.price, vybranaMaxCena));
+  }
+
   const filtrovaneInzeraty = await db
     .select()
     .from(listings)
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .all();
+
   return (
     <Stack align="flex-start" gap="md">
       <Stack gap="xs">
@@ -77,7 +99,9 @@ export default async function Page({ searchParams }: PageProps) {
             {t("page.listings.Pridatnabidku")}
           </Button>
         </Link>
-        <FiltryBar />
+
+        {/* 🌟 2. Předáme mezní hodnoty z DB přímo komponentě s filtry */}
+        <FiltryBar dbMin={minCenaZDb} dbMax={maxCenaZDb} />
 
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
           {filtrovaneInzeraty.map((inzerat) => {
