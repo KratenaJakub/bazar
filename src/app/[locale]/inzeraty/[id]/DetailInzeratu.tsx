@@ -21,7 +21,9 @@ interface DetailProps {
     showQr: boolean;
     bankAccount: string | null;
     address: string | null | undefined;
+    reservedByUserId: string | null;
   };
+  currentUserId: string | null;
   onDelete: (heslo?: string) => Promise<void>;
   onReserve: () => Promise<void>;
   onSell: (heslo?: string) => Promise<void>;
@@ -31,6 +33,7 @@ interface DetailProps {
 
 export default function DetailInzeratu({
   inzerat,
+  currentUserId,
   onDelete,
   onReserve,
   onSell,
@@ -97,6 +100,17 @@ export default function DetailInzeratu({
       setPasswordModalOpen(true);
     }
   };
+  const handleReserveClick = async () => {
+    if (!currentUserId) {
+      alert("Pro rezervaci inzerátu se musíte přihlásit.");
+      return;
+    }
+    setIsActionPending(true);
+    await onReserve();
+    setIsActionPending(false);
+  };
+  const isReserved = inzerat.status === "Rezervováno";
+  const isMyReservation = inzerat.reservedByUserId === currentUserId;
 
   const potvrditHesloZDialogu = () => {
     if (akceTyp === "sell") {
@@ -208,18 +222,15 @@ export default function DetailInzeratu({
         <Stack gap="md">
           <SimpleGrid cols={2} spacing="md">
             <Button
-              variant={inzerat.status === "Rezervováno" ? "filled" : "outline"} //
-              color="orange"
+              variant={isReserved ? "filled" : "outline"}
+              color={isMyReservation ? "red" : "orange"}
               size="md"
-              disabled={inzerat.status === "Prodáno" || inzerat.status === "sold"} //
-              loading={isActionPending} //
-              onClick={async () => {
-                setIsActionPending(true); //
-                await onReserve(); //
-                setIsActionPending(false); //
-              }}
+              // Zakázat, pokud je prodáno, NEBO pokud je rezervováno někým jiným
+              disabled={inzerat.status === "Prodáno" || (isReserved && !isMyReservation)}
+              loading={isActionPending}
+              onClick={handleReserveClick}
             >
-              {inzerat.status === "Rezervováno" ? "Zrušit rezervaci" : "Rezervovat"} {/* */}
+              {isMyReservation ? "Zrušit rezervaci" : isReserved ? "Již rezervováno" : "Rezervovat"}
             </Button>
 
             {/* Zobrazíme / povolíme "Prodáno" jen pokud uživatel může inzerát spravovat */}

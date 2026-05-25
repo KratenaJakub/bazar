@@ -55,10 +55,25 @@ export default async function InzeratDetailPage({ params }: PageProps) {
 
   async function reserveInzeratAction() {
     "use server";
+    const session = await auth();
+    if (!session?.user?.id) {
+      throw new Error("Pro rezervaci musíte být přihlášeni.");
+    }
     const aktualni = await db.select().from(listings).where(eq(listings.id, id)).get();
-    if (!aktualni) return;
-    const novyStav = aktualni.status === "Rezervováno" ? "Aktivní" : "Rezervováno";
-    await db.update(listings).set({ status: novyStav }).where(eq(listings.id, id));
+    if (!aktualni) {
+      throw new Error("Inzerát nebyl nalezen.");
+    }
+    const jeRezervovano = aktualni.status === "Rezervováno";
+    const jeMojeRezervace = aktualni.reservedByUserId === session.user.id;
+    if (jeRezervovano && !jeMojeRezervace) {
+      throw new Error("Tento inzerát je již rezervován někým jiným.");
+    }
+
+    const novyStav = jeRezervovano ? "Aktivní" : "Rezervováno";
+    const novyUzivatel = jeRezervovano ? null : session.user.id;
+
+    await db.update(listings).set({ status: novyStav, reservedByUserId: novyUzivatel }).where(eq(listings.id, id));
+
     revalidatePath(`/inzeraty/${id}`);
     revalidatePath("/inzeraty");
   }
@@ -71,6 +86,7 @@ export default async function InzeratDetailPage({ params }: PageProps) {
         inzerat={bezpecnaData}
         jeVlastnikHned={isOwner}
         musiZadatHeslo={requiresPassword}
+        currentUserId={currentUserId}
         onDelete={deleteInzeratAction}
         onReserve={reserveInzeratAction}
         onSell={sellInzeratAction}
