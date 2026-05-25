@@ -1,9 +1,10 @@
 import { Alert, Badge, Button, Card, CardSection, Group, Image, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { IconFilterOff, IconInfoCircle, IconPlus } from "@tabler/icons-react";
-import { and, eq, gte, like, lte, max, min, or } from "drizzle-orm"; // 🌟 Přidán gte a lte
+import { and, eq, gte, like, lte, max, min, ne, or } from "drizzle-orm"; // 🌟 Přidán gte a lte
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
 import { db } from "@/db";
 import { listings } from "@/db/schemas";
 import FiltryBar from "./FiltryBar";
@@ -29,6 +30,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page({ searchParams }: PageProps) {
   // 1. Zjistíme absolutní min a max cenu ze všech inzerátů v DB
+  const session = await auth();
+  const aktualniUzivatelId = session?.user?.id;
   const [cenyDb] = await db
     .select({
       absolutniMin: min(listings.price),
@@ -43,6 +46,22 @@ export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
   const conditions = [];
 
+  conditions.push(
+    or(
+      // Varianta A: Inzerát NENÍ prodaný -> vidí ho úplně všichni
+      and(
+        ne(listings.status, "sold"), // nahraď případně tvým označením pro prodané
+        ne(listings.status, "Prodané"),
+      ),
+
+      // Varianta B: Inzerát JE prodaný, ale ID tvůrce se shoduje s přihlášeným uživatelem
+      and(
+        or(eq(listings.status, "sold"), eq(listings.status, "Prodané")),
+        // Pokud uživatel není přihlášený (aktualniUzivatelId je null), tato větev se pro jistotu nikdy nesplní
+        aktualniUzivatelId ? eq(listings.userId, aktualniUzivatelId) : eq(listings.id, "nikdy-nesplnitelny-text"),
+      ),
+    ),
+  );
   // A. Vyhledávání textu
   if (params.search) {
     const text = params.search;

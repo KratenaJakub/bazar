@@ -1,6 +1,17 @@
 "use client";
 
-import { Button, Checkbox, Group, NumberInput, Paper, Select, Stack, Textarea, TextInput } from "@mantine/core";
+import {
+  Button,
+  Checkbox,
+  Group,
+  NumberInput,
+  Paper,
+  PasswordInput,
+  Select,
+  Stack,
+  Textarea,
+  TextInput,
+} from "@mantine/core";
 import { IconCheck, IconMapPin } from "@tabler/icons-react";
 import { useState } from "react";
 import { overitKodAction, poslatOverovaciEmail } from "@/app/actions/authactions";
@@ -21,6 +32,9 @@ interface FormularProps {
   onSubmitAction: (formData: FormData) => Promise<void>;
   kategorieOptions: { value: string; label: string }[];
   initialData?: InzeratInitialData; // Přidáno pro editační režim z předchozího kroku
+  isLoggedIn?: boolean;
+  defaultName?: string;
+  defaultEmail?: string;
   t: {
     labelNazev: string;
     placeholderNazev: string;
@@ -38,20 +52,31 @@ interface FormularProps {
     labelObrazek: string;
     placeholderObrazek: string;
     btnSubmit: string;
+    labelHeslo: string;
+    placeholderHeslo: string;
+    upozorneniHeslo: string;
   };
 }
 
-export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOptions, initialData }: FormularProps) {
+export default function NovyInzeratFormular({
+  onSubmitAction,
+  t,
+  kategorieOptions,
+  initialData,
+  defaultEmail,
+  defaultName,
+  isLoggedIn,
+}: FormularProps) {
   const [isZdarma, setIsZdarma] = useState(initialData ? initialData.price === 0 : false);
   const [cena, setCena] = useState<number | string>(initialData ? initialData.price : 0);
   const [showQr, setShowQr] = useState<boolean>(initialData?.showQr ?? false);
   // --- STAVY PRO VERIFIKACI E-MAILU ---
-  const [email, setEmail] = useState(initialData?.contact || "");
+  const [email, setEmail] = useState(initialData?.contact || defaultEmail || "");
   const [posilaSeEmail, setPosilaSeEmail] = useState(false);
   const [kodOdeslan, setKodOdeslan] = useState(false);
   const [serverovyHash, setServerovyHash] = useState("");
   const [zadanyKod, setZadanyKod] = useState("");
-  const [isEmailOveren, setIsEmailOveren] = useState(Boolean(initialData)); // Při editaci předpokládáme ověřeno
+  const [isEmailOveren, setIsEmailOveren] = useState(Boolean(initialData) || Boolean(isLoggedIn));
   const [verifikaceError, setVerifikaceError] = useState<string | null>(null);
 
   const handleZdarmaChange = (checked: boolean) => {
@@ -180,7 +205,7 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
               name="nameSurname"
               withAsterisk
               w="25ch"
-              defaultValue={initialData?.nameSurname || ""}
+              defaultValue={initialData?.nameSurname || defaultName || ""}
             />
 
             {/* SEKCE PRO E-MAIL A JEHO VERIFIKACI */}
@@ -194,7 +219,7 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
                   w="30ch"
                   type="email"
                   value={email}
-                  disabled={isEmailOveren || kodOdeslan} // Zamkneme pole během ověřování
+                  disabled={isEmailOveren || kodOdeslan || isLoggedIn}
                   onChange={(e) => setEmail(e.currentTarget.value)}
                   error={verifikaceError}
                 />
@@ -240,7 +265,18 @@ export default function NovyInzeratFormular({ onSubmitAction, t, kategorieOption
               )}
             </Stack>
           </Group>
-
+          {!isLoggedIn && !initialData && (
+            <PasswordInput
+              label={t.labelHeslo}
+              description={t.upozorneniHeslo}
+              placeholder={t.placeholderHeslo}
+              required
+              withAsterisk
+              name="editPassword"
+              w={{ base: "100%", sm: "50%" }}
+              mt="sm"
+            />
+          )}
           <TextInput
             label={t.labelObrazek}
             placeholder={t.placeholderObrazek}

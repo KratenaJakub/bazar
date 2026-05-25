@@ -1,4 +1,5 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { users } from "./user.schema";
 
 export const listings = sqliteTable("listings", {
   id: text("id").primaryKey(),
@@ -13,5 +14,8 @@ export const listings = sqliteTable("listings", {
   showQr: integer("show_qr", { mode: "boolean" }).default(false),
   bankAccount: text("bank_account"),
   address: text("address"),
+  userId: text("userId").references(() => users.id, { onDelete: "cascade" }),
+  editPassword: text("editPassword"),
+  reservedByUserId: text("reservedByUserId"),
 });
 export type Listing = typeof listings.$inferSelect;
