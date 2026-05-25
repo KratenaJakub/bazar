@@ -1,15 +1,18 @@
 import { Container, Text, Title } from "@mantine/core";
+import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm"; // 👈 Potřebujeme pro vyhledání podle ID
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
 import NovyInzeratFormular from "@/components/form";
 import { db } from "@/db";
 import { listings } from "@/db/schemas";
 
 interface EditPageProps {
-  params: Promise<{ id: string }>; // 👈 Next.js 15+ předává params jako Promise
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ pwd?: string }>;
 }
 
 export async function generateMetadata({ params }: EditPageProps): Promise<Metadata> {
@@ -22,9 +25,10 @@ export async function generateMetadata({ params }: EditPageProps): Promise<Metad
   };
 }
 
-export default async function Page({ params }: EditPageProps) {
+export default async function Page({ params, searchParams }: EditPageProps) {
   const t = await getTranslations();
   const { id } = await params;
+  const session = await auth();
 
   // 1. Načtení stávajících dat inzerátu z databáze podle ID z URL
   const inzerat = await db.select().from(listings).where(eq(listings.id, id)).get();
@@ -32,6 +36,14 @@ export default async function Page({ params }: EditPageProps) {
   // Pokud inzerát s tímto ID neexistuje, zobrazíme 404
   if (!inzerat) {
     notFound();
+  }
+  const isOwner = session?.user?.id !== undefined && inzerat.userId === session.user.id;
+  const resolvedSearchParams = await searchParams;
+  const passwordFromQuery = resolvedSearchParams.pwd;
+  const isPasswordValid =
+    inzerat.editPassword && passwordFromQuery ? await bcrypt.compare(passwordFromQuery, inzerat.editPassword) : false;
+  if (!isOwner && !isPasswordValid) {
+    redirect(`/inzeraty/${id}?error=neopravneny_vstup`);
   }
 
   const tForm = {
@@ -50,6 +62,9 @@ export default async function Page({ params }: EditPageProps) {
     placeholderKontakt: t("page.Addlisting.contactPlaceholder"),
     labelObrazek: t("page.Addlisting.Obrazek"),
     placeholderObrazek: t("page.Addlisting.ObrazekPlaceholder"),
+    labelHeslo: t("page.Addlisting.password"),
+    placeholderHeslo: t("page.Addlisting.passwordPlaceholder"),
+    upozorneniHeslo: t("page.Addlisting.passwordWarning"),
     btnSubmit: t("page.Addlisting.button"),
     btnEditSubmit: "Uložit změny", // 👈 Text pro editační tlačítko
   };

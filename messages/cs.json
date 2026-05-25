@@ -46,7 +46,10 @@
       "nameSurname": "Jméno a příjmení",
       "nameSurnamePlaceholder": "Zadejte své jméno a příjmení",
       "Obrazek": "Obrázek",
-      "ObrazekPlaceholder": "Zadejte URL obrázku (nepovinné)"
+      "ObrazekPlaceholder": "Zadejte URL obrázku (nepovinné)",
+      "password": "Heslo pro úpravy a smazání",
+      "passwordPlaceholder": "Zadejte heslo (nepovinné)",
+      "passwordWarning": "Upozornění: Pokud zadáte heslo, bude potřeba ho zadat pro úpravu nebo smazání inzerátu. Bez hesla nebude možné inzerát upravit nebo smazat, takže si heslo dobře zapamatujte"
     },
     "Categories": {
       "Vehicles": "Vozidla",

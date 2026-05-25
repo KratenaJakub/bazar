@@ -17,6 +17,7 @@ export default function DarkModeToggle() {
   if (!mounted) {
     return (
       <ActionIcon
+        type="button"
         size="xl"
         radius="md"
         variant="outline"

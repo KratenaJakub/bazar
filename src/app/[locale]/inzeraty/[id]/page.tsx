@@ -1,75 +1,76 @@
 import { Container } from "@mantine/core";
+import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { db } from "@/db";
 import { listings } from "@/db/schemas";
 import DetailInzeratu from "./DetailInzeratu";
 
 interface PageProps {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function InzeratDetailPage({ params }: PageProps) {
-  // Rozbalíme params z Promise (v Next.js 15 standardní postup)
   const { id } = await params;
+  const session = await auth();
+  const currentUserId = session?.user?.id || null;
 
-  // Načteme inzerát z databáze podle ID
-  const data = await db.select().from(listings).where(eq(listings.id, id)).get();
+  const rawData = await db.select().from(listings).where(eq(listings.id, id)).get();
+  if (!rawData) return notFound();
 
-  if (!data) {
-    notFound();
-  }
+  const data = rawData;
+  const isOwner = currentUserId !== null && data.userId === currentUserId;
+  const requiresPassword = !data.userId && !!data.editPassword;
 
-  // SERVER ACTION: Smazání inzerátu
-  async function deleteInzeratAction() {
+  // SERVER ACTION: Smazání
+  async function deleteInzeratAction(heslo?: string) {
     "use server";
-    await db.delete(listings).where(eq(listings.id, id));
+    // Logika ověření je nyní přímo zde (v rámci Server Action)
+    const maPristup = isOwner || (requiresPassword && heslo && (await bcrypt.compare(heslo, data.editPassword || "")));
 
-    // Invalidujeme mezipaměť přehledu a přesměrujeme uživatele
+    if (!maPristup) {
+      throw new Error("Nedostatečná oprávnění.");
+    }
+
+    await db.delete(listings).where(eq(listings.id, id));
     revalidatePath("/inzeraty");
     redirect("/inzeraty");
   }
 
-  // SERVER ACTION: Rezervace inzerátu
+  // SERVER ACTION: Označení za prodané
+  async function sellInzeratAction(heslo?: string) {
+    "use server";
+    const maPristup = isOwner || (requiresPassword && heslo && (await bcrypt.compare(heslo, data.editPassword || "")));
+
+    if (!maPristup) {
+      throw new Error("Nedostatečná oprávnění.");
+    }
+
+    await db.update(listings).set({ status: "Prodáno" }).where(eq(listings.id, id));
+    revalidatePath(`/inzeraty/${id}`);
+    revalidatePath("/inzeraty");
+  }
+
   async function reserveInzeratAction() {
     "use server";
-
-    // 1. Zjistíme si aktuální stav inzerátu přímo z DB
     const aktualni = await db.select().from(listings).where(eq(listings.id, id)).get();
-
     if (!aktualni) return;
-
-    // 2. Určíme nový stav: pokud už je rezervovaný, vrátíme ho jako aktivní
     const novyStav = aktualni.status === "Rezervováno" ? "Aktivní" : "Rezervováno";
-
-    // 3. Uložíme změnu do databáze
     await db.update(listings).set({ status: novyStav }).where(eq(listings.id, id));
-
-    // 4. Pročistíme cache, aby Next.js okamžitě načetl nový stav
     revalidatePath(`/inzeraty/${id}`);
     revalidatePath("/inzeraty");
   }
 
-  // SERVER ACTION: Označení za prodané
-  async function sellInzeratAction() {
-    "use server";
-    await db.update(listings).set({ status: "Prodáno" }).where(eq(listings.id, id));
-
-    revalidatePath(`/inzeraty/${id}`);
-    revalidatePath("/inzeraty");
-  }
-  const bezpecnaData = {
-    ...data,
-    showQr: data.showQr ?? false, // 👈 Pokud je v DB null, podstrčíme false
-  };
+  const bezpecnaData = { ...data, showQr: data.showQr ?? false };
 
   return (
     <Container size="xl" py="xl" style={{ marginLeft: 0, paddingLeft: 0 }}>
       <DetailInzeratu
         inzerat={bezpecnaData}
+        jeVlastnikHned={isOwner}
+        musiZadatHeslo={requiresPassword}
         onDelete={deleteInzeratAction}
         onReserve={reserveInzeratAction}
         onSell={sellInzeratAction}
