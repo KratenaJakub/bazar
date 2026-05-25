@@ -40,11 +40,6 @@ export default function DarkModeToggle() {
       aria-label="Přepnout tmavý/světlý režim"
       radius="md"
       variant="outline"
-      style={{
-        backgroundColor: "#FFFFFF",
-        borderColor: "var(--mantine-color-gray-3)",
-        color: computedColorScheme === "dark" ? "var(--mantine-color-yellow-6)" : "var(--mantine-color-blue-6)",
-      }}
     >
       {computedColorScheme === "dark" ? (
         <IconSun stroke={1.5} color="orange" />
