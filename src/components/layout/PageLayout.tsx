@@ -3,7 +3,7 @@
 import { AppShell, Container, Group } from "@mantine/core";
 import type { PropsWithChildren } from "react";
 import DarkModeToggle from "@/components/DarkMode";
-import { PageLogo } from "@/components/layout/PageLogo";
+import PageLogo from "@/components/layout/PageLogo";
 
 const HEADER_HEIGHT = 90;
 const BODY_MAX_WIDTH = 1280;
