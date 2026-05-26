@@ -1,17 +1,25 @@
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { db } from "@/db";
-import { users } from "@/db/schemas/user.schema";
+// 🌟 Importujeme všechna schémata z centrálního indexu
+import * as schema from "@/db/schemas";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  // 🌟 Povolíme explicitně JWT strategii pro sessions (vyžadováno, pokud nepoužíváš DB adaptér)
+  // 🌟 Předáme tabulky z naimportovaného schématu adaptéru
+  adapter: DrizzleAdapter(db, {
+    usersTable: schema.users,
+    accountsTable: schema.accounts,
+  }),
   session: { strategy: "jwt" },
   providers: [
-    // 🌟 Zjednodušený zápis pro Google v v5 (automaticky mapuje AUTH_GOOGLE_ID a AUTH_GOOGLE_SECRET)
-    Google,
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
     Credentials({
       name: "Credentials",
       credentials: {
@@ -23,8 +31,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const [user] = await db
           .select()
-          .from(users)
-          .where(eq(users.email, credentials.email as string))
+          .from(schema.users) // Používáme tabulku z objektu schema
+          .where(eq(schema.users.email, credentials.email as string))
           .limit(1);
 
         if (!user?.passwordHash) return null;
@@ -42,7 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   pages: {
-    signIn: "/auth", // Cesta k tvému přihlašovacímu formuláři
+    signIn: "/auth",
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -58,4 +66,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
+  secret: process.env.NEXTAUTH_SECRET,
 });
