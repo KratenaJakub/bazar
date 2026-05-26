@@ -63,6 +63,9 @@ export default async function InzeratDetailPage({ params }: PageProps) {
     if (!aktualni) {
       throw new Error("Inzerát nebyl nalezen.");
     }
+    if (aktualni.userId === session.user.id) {
+      throw new Error("Nemůžete rezervovat svůj vlastní inzerát.");
+    }
     const jeRezervovano = aktualni.status === "Rezervováno";
     const jeMojeRezervace = aktualni.reservedByUserId === session.user.id;
     if (jeRezervovano && !jeMojeRezervace) {

@@ -3,7 +3,7 @@
 import { Box, Paper, RangeSlider, Select, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react"; // 🌟 Přidán useRef
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounce } from "use-debounce";
 
 interface FiltryBarProps {
@@ -28,8 +28,9 @@ export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
   // Debounce pro text
   const [debouncedSearch] = useDebounce(search, 300);
 
-  // 🌟 2. REFS PRO UDRŽENÍ AKTUÁLNÍCH HODNOT BEZ VYVOLÁNÍ REAKTIVITY
+  // 🌟 2. REFS PRO BEZPEČNOST PROTI PROMAZÁVÁNÍ TEXTU
   const filtryRef = useRef({ kategorie, stav, cenaRange });
+  const lastPushedSearch = useRef<string | null>(null); // Sleduje, jaký text jsme naposledy poslali do URL
 
   // Kdykoliv se stavy změní, tichým způsobem zaktualizujeme jejich reference
   useEffect(() => {
@@ -53,11 +54,12 @@ export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
     [dbMin, dbMax, router, pathname],
   );
 
-  // 🌟 4. REAKCE NA TEXTOVÝ DEBOUNCE (Teď už zcela bez chyb a varování linteru)
+  // 🌟 4. REAKCE NA TEXTOVÝ DEBOUNCE
   useEffect(() => {
     const { kategorie: k, stav: s, cenaRange: c } = filtryRef.current;
+    lastPushedSearch.current = debouncedSearch; // Uložíme si, co odesíláme, aby nás to při zpětné vazbě nepřemazalo
     aktualizujUrl(debouncedSearch, k, s, c[0], c[1]);
-  }, [debouncedSearch, aktualizujUrl]); // Jedinou závislostí je debouncedSearch, linter je naprosto spokojený
+  }, [debouncedSearch, aktualizujUrl]);
 
   // 5. REAKCE NA ZMĚNU KATEGORIE
   const handleKategorieChange = (val: string | null) => {
@@ -76,7 +78,7 @@ export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
     aktualizujUrl(search, kategorie, stav, val[0], val[1]);
   };
 
-  // Synchronizace stavů při změně URL zvenčí
+  // 🌟 8. SYNCHRONIZACE STAVŮ PŘI ZMĚNĚ URL ZVENČÍ (Opraveno)
   useEffect(() => {
     const s = searchParams.get("search") || "";
     const k = searchParams.get("category");
@@ -84,11 +86,19 @@ export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
     const minP = searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : dbMin;
     const maxP = searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : dbMax;
 
-    setSearch(s);
+    // Pokud hodnota z URL odpovídá tomu, co náš vlastní debounce naposledy vygeneroval,
+    // input nepřepisujeme (protože uživatel už mohl mezitím napsat další znaky).
+    if (s === lastPushedSearch.current) {
+      lastPushedSearch.current = null; // Vyčistíme pro budoucí externí změny
+    } else {
+      setSearch(s); // Změna přišla zvenčí (např. tlačítko zpět, reset filtrů) -> zaktualizujeme políčko
+    }
+
     setKategorie(k);
     setStav(st);
     setCenaRange([minP, maxP]);
   }, [searchParams, dbMin, dbMax]);
+
   return (
     <Paper
       withBorder
