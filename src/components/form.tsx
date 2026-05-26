@@ -3,16 +3,20 @@
 import {
   Button,
   Checkbox,
+  FileButton, // 🌟 Přidáno pro výběr souborů
   Group,
+  Image,
   NumberInput,
   Paper,
   PasswordInput,
   Select,
+  SimpleGrid,
   Stack,
+  Text,
   Textarea,
   TextInput,
 } from "@mantine/core";
-import { IconCheck, IconMapPin } from "@tabler/icons-react";
+import { IconCheck, IconMapPin, IconUpload } from "@tabler/icons-react";
 import { useState } from "react";
 import { overitKodAction, poslatOverovaciEmail } from "@/app/actions/authactions";
 
@@ -31,7 +35,7 @@ interface InzeratInitialData {
 interface FormularProps {
   onSubmitAction: (formData: FormData) => Promise<void>;
   kategorieOptions: { value: string; label: string }[];
-  initialData?: InzeratInitialData; // Přidáno pro editační režim z předchozího kroku
+  initialData?: InzeratInitialData;
   isLoggedIn?: boolean;
   defaultName?: string;
   defaultEmail?: string;
@@ -70,6 +74,10 @@ export default function NovyInzeratFormular({
   const [isZdarma, setIsZdarma] = useState(initialData ? initialData.price === 0 : false);
   const [cena, setCena] = useState<number | string>(initialData ? initialData.price : 0);
   const [showQr, setShowQr] = useState<boolean>(initialData?.showQr ?? false);
+
+  // 🌟 Stavy pro nahrávání obrázku
+  const [imageError, setImageError] = useState<string | null>(null);
+
   // --- STAVY PRO VERIFIKACI E-MAILU ---
   const [email, setEmail] = useState(initialData?.contact || defaultEmail || "");
   const [posilaSeEmail, setPosilaSeEmail] = useState(false);
@@ -84,6 +92,51 @@ export default function NovyInzeratFormular({
     if (checked) {
       setCena(0);
     }
+  };
+
+  // 🌟 Funkce pro zpracování vybraného souboru a konverzi na Base64
+  const [base64Images, setBase64Images] = useState<string[]>(() => {
+    if (initialData?.Photo) {
+      try {
+        // Zkusíme parsovat JSON pole
+        const parsed = JSON.parse(initialData.Photo);
+        return Array.isArray(parsed) ? parsed : [initialData.Photo];
+      } catch {
+        // Pokud to není JSON (starší inzeráty), vrátíme jako jedno položkové pole
+        return [initialData.Photo];
+      }
+    }
+    return [];
+  });
+  // 🌟 Změna: Zpracování více vybraných souborů najednou
+  const handleFilesChange = (files: File[] | null) => {
+    setImageError(null);
+    if (!files || files.length === 0) return;
+
+    // Omezíme celkový počet např. na 5 obrázků
+    if (base64Images.length + files.length > 5) {
+      setImageError("Můžete nahrát maximálně 5 obrázků.");
+      return;
+    }
+
+    files.forEach((file) => {
+      if (file.size > 4 * 1024 * 1024) {
+        setImageError(`Soubor ${file.name} je příliš velký. Maximální velikost je 4 MB.`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setBase64Images((prev) => [...prev, reader.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const smazatObrazek = (indexDosmazani: number) => {
+    setBase64Images((prev) => prev.filter((_, idx) => idx !== indexDosmazani));
   };
 
   // 1. Spuštění odeslání e-mailu
@@ -148,7 +201,7 @@ export default function NovyInzeratFormular({
           <TextInput
             label="Lokalita / Adresa"
             placeholder="Např. Zlín, Brno-střed, nebo konkrétní ulice..."
-            name="address" // klíčové pro FormData
+            name="address"
             defaultValue={initialData?.address || ""}
             leftSection={<IconMapPin size={16} stroke={1.5} />}
             radius="md"
@@ -178,7 +231,7 @@ export default function NovyInzeratFormular({
           <Stack gap="xs" mt="sm">
             <Checkbox
               label="Povolit platbu QR kódem"
-              name="showQrCheck" // name pro checkbox (Next ho pošle jako "on" nebo null)
+              name="showQrCheck"
               checked={showQr}
               onChange={(e) => setShowQr(e.currentTarget.checked)}
             />
@@ -194,7 +247,6 @@ export default function NovyInzeratFormular({
                 defaultValue={initialData?.bankAccount || ""}
               />
             )}
-            {/* Skrytý input pro boolean hodnotu showQr, aby se snadno posílala */}
             <input type="hidden" name="showQr" value={showQr ? "true" : "false"} />
           </Stack>
           <Group align="flex-end">
@@ -208,7 +260,6 @@ export default function NovyInzeratFormular({
               defaultValue={initialData?.nameSurname || defaultName || ""}
             />
 
-            {/* SEKCE PRO E-MAIL A JEHO VERIFIKACI */}
             <Stack gap={2} align="flex-start">
               <Group align="flex-end" gap="xs">
                 <TextInput
@@ -225,7 +276,6 @@ export default function NovyInzeratFormular({
                 />
                 <input type="hidden" name="contact" value={email} />
 
-                {/* Tlačítko pro zaslání kódu */}
                 {!isEmailOveren && !kodOdeslan && (
                   <Button
                     onClick={handlePoslatKod}
@@ -238,7 +288,6 @@ export default function NovyInzeratFormular({
                   </Button>
                 )}
 
-                {/* Indikátor úspěšného ověření */}
                 {isEmailOveren && (
                   <Button variant="light" color="green" disabled leftSection={<IconCheck size={16} />}>
                     Ověřeno
@@ -246,7 +295,6 @@ export default function NovyInzeratFormular({
                 )}
               </Group>
 
-              {/* Políčko pro zadání kódu, které vyskočí po odeslání */}
               {kodOdeslan && (
                 <Group align="flex-end" gap="xs" mt="xs">
                   <TextInput
@@ -277,16 +325,59 @@ export default function NovyInzeratFormular({
               mt="sm"
             />
           )}
-          <TextInput
-            label={t.labelObrazek}
-            placeholder={t.placeholderObrazek}
-            name="image"
-            w="30ch"
-            defaultValue={initialData?.Photo || ""}
-          />
+
+          {/* 🌟 NOVÁ SEKCE PRO NAHRÁVÁNÍ OBRÁZKU */}
+          <Stack gap="xs" mt="sm">
+            <Text size="sm" fw={500}>
+              {t.labelObrazek} (Max. 5)
+            </Text>
+
+            <FileButton onChange={handleFilesChange} accept="image/png,image/jpeg,image/webp" multiple>
+              {(props) => (
+                <Button
+                  {...props}
+                  variant="outline"
+                  color="orange"
+                  leftSection={<IconUpload size={16} />}
+                  w="fit-content"
+                >
+                  Vybrat fotky z počítače
+                </Button>
+              )}
+            </FileButton>
+
+            {base64Images.length > 0 && (
+              <SimpleGrid cols={{ base: 2, sm: 5 }} spacing="sm" mt="xs">
+                {base64Images.map((img, idx) => (
+                  <Stack key={img} gap={4} align="center" style={{ position: "relative" }}>
+                    <Image
+                      src={img}
+                      alt={`Náhled ${idx + 1}`}
+                      h={100}
+                      w="100%"
+                      radius="md"
+                      fit="cover"
+                      style={{ border: "1px solid var(--mantine-color-gray-3)" }}
+                    />
+                    <Button size="xs" variant="subtle" color="red" onClick={() => smazatObrazek(idx)}>
+                      Smazat
+                    </Button>
+                  </Stack>
+                ))}
+              </SimpleGrid>
+            )}
+
+            {imageError && (
+              <Text size="xs" color="red">
+                {imageError}
+              </Text>
+            )}
+
+            {/* Pole posíláme na server zabalené jako JSON text */}
+            <input type="hidden" name="image" value={JSON.stringify(base64Images)} />
+          </Stack>
 
           <Group justify="flex-end" mt="md">
-            {/* BUTTON SE ODPOUTÁ A BUDE KLIKACÍ POUZE POKUD JE EMAIL OVĚŘENÝ */}
             <Button type="submit" disabled={!isEmailOveren}>
               {initialData ? "Uložit změny" : t.btnSubmit}
             </Button>

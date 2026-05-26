@@ -3,7 +3,7 @@
 import { Button, Group, Image, Modal, Paper, PasswordInput, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { IconEdit } from "@tabler/icons-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import InzeratMapa from "@/components/inzeratmapa";
 import PlatbaQR from "@/components/qrplatba";
 
@@ -40,9 +40,22 @@ export default function DetailInzeratu({
   jeVlastnikHned,
   musiZadatHeslo,
 }: DetailProps) {
+  const fotky = useMemo(() => {
+    if (!inzerat.Photo) return ["/blogic-logo.png"];
+    try {
+      const parsed = JSON.parse(inzerat.Photo);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : [inzerat.Photo];
+    } catch {
+      return [inzerat.Photo];
+    }
+  }, [inzerat.Photo]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); //
   const [isDeleting, setIsDeleting] = useState(false); //
   const [isActionPending, setIsActionPending] = useState(false); //
+  const [aktivniFoto, setAktivniFoto] = useState(fotky[0]);
+  useEffect(() => {
+    setAktivniFoto(fotky[0]);
+  }, [fotky]);
 
   // Stavy pro dialogové okno s heslem (pro anonymní inzeráty)
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
@@ -110,7 +123,7 @@ export default function DetailInzeratu({
     setIsActionPending(false);
   };
   const isReserved = inzerat.status === "Rezervováno";
-  const isMyReservation = inzerat.reservedByUserId === currentUserId;
+  const isMyReservation = currentUserId !== null && inzerat.reservedByUserId === currentUserId;
 
   const potvrditHesloZDialogu = () => {
     if (akceTyp === "sell") {
@@ -194,44 +207,64 @@ export default function DetailInzeratu({
             </Group>
           </Stack>
         </Paper>
-        {inzerat.Photo && inzerat.Photo.trim() !== "" ? (
-          <Paper
-            withBorder
-            shadow="sm"
+        <Stack gap="md" align="center" style={{ width: "100%" }}>
+          <Image
+            src={aktivniFoto}
+            alt={inzerat.name}
+            mah={420}
+            fit="contain"
             radius="md"
-            p="md"
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 300 }}
-          >
-            <Image src={inzerat.Photo} alt={inzerat.name} height={400} fit="contain" radius="md" />
-          </Paper>
-        ) : (
-          <Paper
-            withBorder
-            shadow="sm"
-            radius="md"
-            p="xl"
-            bg="gray.0"
-            style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <Text c="dimmed">Inzerát nemá žádný obrázek</Text>
-          </Paper>
-        )}
+            style={{
+              width: "100%",
+              // Přidá moderní jemný stín přímo pod samotné tělo obrázku
+              filter: "drop-shadow(0px 6px 16px rgba(0, 0, 0, 0.06))",
+            }}
+          />
+
+          {/* Miniatury pod hlavním obrázkem (zobrazeny pouze při více fotkách, key={foto} řeší varování linteru) */}
+          {fotky.length > 1 && (
+            <Group gap="xs" justify="center" mt="xs">
+              {fotky.map((foto) => (
+                <Image
+                  key={foto}
+                  src={foto}
+                  alt="Náhled"
+                  h={62}
+                  w={62}
+                  radius="md"
+                  fit="cover"
+                  style={{
+                    cursor: "pointer",
+                    border:
+                      aktivniFoto === foto
+                        ? "2px solid var(--mantine-color-orange-6)"
+                        : "1px solid var(--mantine-color-gray-3)",
+                    opacity: aktivniFoto === foto ? 1 : 0.6,
+                    transition: "all 0.15s ease",
+                  }}
+                  onClick={() => setAktivniFoto(foto)}
+                />
+              ))}
+            </Group>
+          )}
+        </Stack>
       </SimpleGrid>
 
       <Paper withBorder shadow="sm" radius="md" p="lg" maw={600}>
         <Stack gap="md">
           <SimpleGrid cols={2} spacing="md">
-            <Button
-              variant={isReserved ? "filled" : "outline"}
-              color={isMyReservation ? "red" : "orange"}
-              size="md"
-              // Zakázat, pokud je prodáno, NEBO pokud je rezervováno někým jiným
-              disabled={inzerat.status === "Prodáno" || (isReserved && !isMyReservation)}
-              loading={isActionPending}
-              onClick={handleReserveClick}
-            >
-              {isMyReservation ? "Zrušit rezervaci" : isReserved ? "Již rezervováno" : "Rezervovat"}
-            </Button>
+            {!jeVlastnikHned && (
+              <Button
+                variant={isReserved ? "filled" : "outline"}
+                color={isMyReservation ? "red" : "orange"}
+                size="md"
+                disabled={inzerat.status === "Prodáno" || (isReserved && !isMyReservation)}
+                loading={isActionPending}
+                onClick={handleReserveClick}
+              >
+                {isMyReservation ? "Zrušit rezervaci" : isReserved ? "Již rezervováno" : "Rezervovat"}
+              </Button>
+            )}
 
             {/* Zobrazíme / povolíme "Prodáno" jen pokud uživatel může inzerát spravovat */}
             {(jeVlastnikHned || musiZadatHeslo) && (
