@@ -4,6 +4,7 @@ import { Button, Container, Paper, PasswordInput, Stack, Text, TextInput, Title 
 import { useForm } from "@mantine/form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { GoogleLoginButton } from "@/components/GoogleSignIn";
 import { prihlasitUzivatele, registrovatUzivatele } from "./actions";
 
 export default function AuthPage() {
@@ -60,7 +61,7 @@ export default function AuthPage() {
       <Title ta="center" fw={900} style={{ letterSpacing: "-1px" }}>
         {type === "login" ? "Vítejte zpět!" : "Vytvořte si účet"}
       </Title>
-
+      <GoogleLoginButton />
       <Text c="dimmed" size="sm" ta="center" mt={5}>
         {type === "login" ? "Ještě nemáte účet? " : "Již máte účet? "}
         <Text

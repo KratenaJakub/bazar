@@ -49,7 +49,10 @@ export async function registrovatUzivatele(values: RegistraceInput) {
     return { error: "Něco se pokazilo. Zkuste to prosím znovu." };
   }
 }
-
+export async function prihlasitPresGoogle() {
+  // Zavolá serverové přesměrování přímo na Google
+  await signIn("google", { redirectTo: "/inzeraty" });
+}
 // 🌟 2. AKCE PRO PŘIHLÁŠENÍ
 export async function prihlasitUzivatele(values: PrihlaseniInput) {
   try {

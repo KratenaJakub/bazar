@@ -2,11 +2,16 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import { db } from "@/db";
 import { users } from "@/db/schemas/user.schema";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // 🌟 Povolíme explicitně JWT strategii pro sessions (vyžadováno, pokud nepoužíváš DB adaptér)
+  session: { strategy: "jwt" },
   providers: [
+    // 🌟 Zjednodušený zápis pro Google v v5 (automaticky mapuje AUTH_GOOGLE_ID a AUTH_GOOGLE_SECRET)
+    Google,
     Credentials({
       name: "Credentials",
       credentials: {
@@ -53,5 +58,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
 });
