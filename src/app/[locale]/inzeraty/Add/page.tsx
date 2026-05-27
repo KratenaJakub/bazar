@@ -27,42 +27,6 @@ export default async function Page() {
   const defaultName = session?.user?.name || "";
   const defaultEmail = session?.user?.email || "";
 
-  const tForm = {
-    labelNazev: t("page.Addlisting.name"),
-    placeholderNazev: t("page.Addlisting.namePlaceholder"),
-    labelPopis: t("page.Addlisting.description"),
-    placeholderPopis: t("page.Addlisting.descriptionPlaceholder"),
-    labelKategorie: t("page.Addlisting.category"),
-    placeholderKategorie: t("page.Addlisting.categoryPlaceholder"),
-    labelCena: t("page.Addlisting.price"),
-    placeholderCena: t("page.Addlisting.pricePlaceholder"),
-    labelZdarma: t("page.Addlisting.zdarma"),
-    labelJmeno: t("page.Addlisting.nameSurname"),
-    placeholderJmeno: t("page.Addlisting.nameSurnamePlaceholder"),
-    labelKontakt: t("page.Addlisting.contact"),
-    placeholderKontakt: t("page.Addlisting.contactPlaceholder"),
-    labelObrazek: t("page.Addlisting.Obrazek"),
-    placeholderObrazek: t("page.Addlisting.ObrazekPlaceholder"),
-    btnSubmit: t("page.Addlisting.button"),
-    // 🌟 Nové texty pro heslo (můžeš si je pak přidat do cs.json)
-    labelHeslo: "Heslo pro úpravu inzerátu",
-    placeholderHeslo: "Zadejte heslo",
-    upozorneniHeslo: "Heslo si zapamatujte, budete ho potřebovat, pokud budete chtít inzerát smazat nebo upravit.",
-  };
-
-  const kategorieOptions = [
-    { value: "Dům a zahrada", label: t("page.Categories.Home&Garden") },
-    { value: "Elektronika", label: t("page.Categories.Electronics") },
-    { value: "Nábytek", label: t("page.Categories.Furniture") },
-    { value: "Oblečení", label: t("page.Categories.Clothing") },
-    { value: "Dětské zboží", label: t("page.Categories.Children") },
-    { value: "Knihy", label: t("page.Categories.Books") },
-    { value: "Sport", label: t("page.Categories.Sport") },
-    { value: "Vozidla", label: t("page.Categories.Vehicles") },
-    { value: "Hudba", label: t("page.Categories.Music") },
-    { value: "Ostatní", label: t("page.Categories.Misc") },
-  ];
-
   async function createInzerat(formData: FormData) {
     "use server";
 
@@ -87,7 +51,8 @@ export default async function Page() {
     const cena = zdarma ? 0 : Number(cenaRaw) || 0;
 
     if (!nazev || !popis || !kategorie || !jmeno || !kontakt) {
-      throw new Error("Všechna povinná pole musí být vyplněna.");
+      const tAction = await getTranslations();
+      throw new Error(tAction("page.Addlisting.name") ? "Vyplňte povinná pole" : "Vyplňte povinná pole");
     }
 
     // 🌟 Hashování hesla, pokud inzerát vytváří neregistrovaný uživatel
@@ -120,7 +85,7 @@ export default async function Page() {
   return (
     <Container size="sm" pt={0} style={{ marginLeft: 0, paddingLeft: 0 }}>
       <Link href="/inzeraty" style={{ textDecoration: "none", color: "var(--mantine-color-blue-filled)" }}>
-        ← Zpět na přehled
+        {t("page.Detail.Zpet")}
       </Link>
       <Title order={1} mt={0} mb="md">
         {t("page.Addlisting.title")}
@@ -131,9 +96,6 @@ export default async function Page() {
 
       <NovyInzeratFormular
         onSubmitAction={createInzerat}
-        t={tForm}
-        kategorieOptions={kategorieOptions}
-        // 🌟 Předáme formuláři informaci, že je uživatel přihlášený + jeho údaje
         isLoggedIn={isLoggedIn}
         defaultName={defaultName}
         defaultEmail={defaultEmail}

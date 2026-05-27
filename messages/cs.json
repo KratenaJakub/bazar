@@ -9,6 +9,7 @@
     }
   },
   "page": {
+    "ZpetPrehled": "← Zpět na přehled",
     "home": {
       "title": "Domovská stránka",
       "description": "Vítejte na naší domovské stránce! Jsme rádi, že jste zde. Prozkoumejte naše služby a produkty, které vám mohou pomoci dosáhnout vašich cílů. Neváhejte nás kontaktovat pro více informací.",
@@ -48,22 +49,10 @@
       "Obrazek": "Obrázek",
       "ObrazekPlaceholder": "Zadejte URL obrázku (nepovinné)",
       "password": "Heslo pro úpravy a smazání",
-      "passwordPlaceholder": "Zadejte heslo (nepovinné)",
-      "passwordWarning": "Upozornění: Pokud zadáte heslo, bude potřeba ho zadat pro úpravu nebo smazání inzerátu. Bez hesla nebude možné inzerát upravit nebo smazat, takže si heslo dobře zapamatujte"
+      "passwordPlaceholder": "Zadejte heslo",
+      "passwordWarning": "Upozornění: Bez hesla nebude možné inzerát upravit nebo smazat, takže si heslo dobře zapamatujte"
     },
-    "Categories": {
-      "Vehicles": "Vozidla",
-      "Children": "Dětské zboží",
-      "Animals": "Zvířata",
-      "Home&Garden": "Dům a zahrada",
-      "Electronics": "Elektronika",
-      "Sport": "Sport",
-      "Music": "Hudba",
-      "Books": "Knihy",
-      "Furniture": "Nábytek",
-      "Clothing": "Oblečení",
-      "Misc": "Ostatní"
-    },
+
     "Detail": {
       "title": "Detail inzerátu",
       "description": "Zde můžete vidět podrobnosti o vybraném inzerátu. Pokud máte zájem, kontaktujte prodejce a domluvte se na dalším postupu.",
@@ -72,6 +61,37 @@
       "Cena": "Cena:",
       "Kategorie": "Kategorie:",
       "Popis": "Popis:"
+    },
+    "Errory": {
+      "PovinnáPole": "Všechna povinná pole musí být vyplněna."
     }
+  },
+  "FiltryBar": {
+    "Categories": {
+      "Vehicles": "Vozidla",
+      "Children": "Dětské zboží",
+      "Animals": "Zvířata",
+      "Home_Garden": "Dům a zahrada",
+      "Electronics": "Elektronika",
+      "Sport": "Sport",
+      "Music": "Hudba",
+      "Books": "Knihy",
+      "Furniture": "Nábytek",
+      "Clothing": "Oblečení",
+      "Misc": "Ostatní"
+    },
+    "Status": {
+      "Active": "Dostupné",
+      "Reserved": "Rezervováno",
+      "Sold": "Prodáno"
+    },
+    "searchPlaceholder": "Hledat inzerát...",
+    "hledatLabel": "Hledat",
+    "kategorieLabel": "Kategorie",
+    "stavLabel": "Stav",
+    "dbRangeLabel": "Cena (Kč)",
+    "minPricePlaceholder": "Od",
+    "maxPricePlaceholder": "Do",
+    "suffix": " Kč"
   }
 }
