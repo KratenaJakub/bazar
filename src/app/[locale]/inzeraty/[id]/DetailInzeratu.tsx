@@ -252,7 +252,7 @@ export default function DetailInzeratu({
 
       <Paper withBorder shadow="sm" radius="md" p="lg" maw={600}>
         <Stack gap="md">
-          <SimpleGrid cols={2} spacing="md">
+          <Group grow gap="md" style={{ width: "100%" }}>
             {!jeVlastnikHned && (
               <Button
                 variant={isReserved ? "filled" : "outline"}
@@ -272,14 +272,14 @@ export default function DetailInzeratu({
                 variant="light"
                 color="green"
                 size="md"
-                disabled={inzerat.status === "Prodáno"} //
-                loading={isActionPending} //
+                disabled={inzerat.status === "Prodáno"}
+                loading={isActionPending}
                 onClick={() => spustitChranenouAkci("sell")}
               >
                 Prodáno
               </Button>
             )}
-          </SimpleGrid>
+          </Group>
 
           {/* Tlačítko na smazání inzerátu */}
           {(jeVlastnikHned || musiZadatHeslo) && (

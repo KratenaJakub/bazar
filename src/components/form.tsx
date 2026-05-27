@@ -17,6 +17,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { IconCheck, IconMapPin, IconUpload } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { overitKodAction, poslatOverovaciEmail } from "@/app/actions/authactions";
 
@@ -34,43 +35,33 @@ interface InzeratInitialData {
 }
 interface FormularProps {
   onSubmitAction: (formData: FormData) => Promise<void>;
-  kategorieOptions: { value: string; label: string }[];
   initialData?: InzeratInitialData;
   isLoggedIn?: boolean;
   defaultName?: string;
   defaultEmail?: string;
-  t: {
-    labelNazev: string;
-    placeholderNazev: string;
-    labelPopis: string;
-    placeholderPopis: string;
-    labelKategorie: string;
-    placeholderKategorie: string;
-    labelCena: string;
-    placeholderCena: string;
-    labelZdarma: string;
-    labelJmeno: string;
-    placeholderJmeno: string;
-    labelKontakt: string;
-    placeholderKontakt: string;
-    labelObrazek: string;
-    placeholderObrazek: string;
-    btnSubmit: string;
-    labelHeslo: string;
-    placeholderHeslo: string;
-    upozorneniHeslo: string;
-  };
 }
 
 export default function NovyInzeratFormular({
   onSubmitAction,
-  t,
-  kategorieOptions,
   initialData,
   defaultEmail,
   defaultName,
   isLoggedIn,
 }: FormularProps) {
+  const t = useTranslations("page.Addlisting");
+  const tFiltry = useTranslations("FiltryBar.Categories");
+  const kategorieOptions = [
+    { value: "Dům a zahrada", label: tFiltry("Home_Garden") },
+    { value: "Elektronika", label: tFiltry("Electronics") },
+    { value: "Nábytek", label: tFiltry("Furniture") },
+    { value: "Oblečení", label: tFiltry("Clothing") },
+    { value: "Dětské zboží", label: tFiltry("Children") },
+    { value: "Knihy", label: tFiltry("Books") },
+    { value: "Sport", label: tFiltry("Sport") },
+    { value: "Vozidla", label: tFiltry("Vehicles") },
+    { value: "Hudba", label: tFiltry("Music") },
+    { value: "Ostatní", label: tFiltry("Misc") },
+  ];
   const [isZdarma, setIsZdarma] = useState(initialData ? initialData.price === 0 : false);
   const [cena, setCena] = useState<number | string>(initialData ? initialData.price : 0);
   const [showQr, setShowQr] = useState<boolean>(initialData?.showQr ?? false);
@@ -173,25 +164,25 @@ export default function NovyInzeratFormular({
       <Paper withBorder shadow="sm" p="md" radius="md">
         <Stack align="left">
           <TextInput
-            label={t.labelNazev}
-            placeholder={t.placeholderNazev}
+            label={t("name")}
+            placeholder={t("namePlaceholder")}
             required
             name="name"
             withAsterisk
             defaultValue={initialData?.name || ""}
           />
           <Textarea
-            label={t.labelPopis}
-            placeholder={t.placeholderPopis}
+            label={t("description")}
+            placeholder={t("descriptionPlaceholder")}
             required
             name="description"
             withAsterisk
             defaultValue={initialData?.description || ""}
           />
           <Select
-            label={t.labelKategorie}
+            label={t("category")}
             name="category"
-            placeholder={t.placeholderKategorie}
+            placeholder={t("categoryPlaceholder")}
             data={kategorieOptions}
             required
             withAsterisk
@@ -210,8 +201,8 @@ export default function NovyInzeratFormular({
 
           <Group align="flex-end">
             <NumberInput
-              label={t.labelCena}
-              placeholder={t.placeholderCena}
+              label={t("price")}
+              placeholder={t("pricePlaceholder")}
               required
               name="price"
               withAsterisk
@@ -222,7 +213,7 @@ export default function NovyInzeratFormular({
               disabled={isZdarma}
             />
             <Checkbox
-              label={t.labelZdarma}
+              label={t("zdarma")}
               name="free"
               checked={isZdarma}
               onChange={(e) => handleZdarmaChange(e.currentTarget.checked)}
@@ -251,8 +242,8 @@ export default function NovyInzeratFormular({
           </Stack>
           <Group align="flex-end">
             <TextInput
-              label={t.labelJmeno}
-              placeholder={t.placeholderJmeno}
+              label={t("nameSurname")}
+              placeholder={t("nameSurnamePlaceholder")}
               required
               name="nameSurname"
               withAsterisk
@@ -263,8 +254,8 @@ export default function NovyInzeratFormular({
             <Stack gap={2} align="flex-start">
               <Group align="flex-end" gap="xs">
                 <TextInput
-                  label={t.labelKontakt}
-                  placeholder={t.placeholderKontakt}
+                  label={t("contact")}
+                  placeholder={t("contactPlaceholder")}
                   required
                   withAsterisk
                   w="30ch"
@@ -315,9 +306,9 @@ export default function NovyInzeratFormular({
           </Group>
           {!isLoggedIn && !initialData && (
             <PasswordInput
-              label={t.labelHeslo}
-              description={t.upozorneniHeslo}
-              placeholder={t.placeholderHeslo}
+              label={t("password")}
+              description={t("passwordWarning")}
+              placeholder={t("passwordPlaceholder")}
               required
               withAsterisk
               name="editPassword"
@@ -329,7 +320,7 @@ export default function NovyInzeratFormular({
           {/* 🌟 NOVÁ SEKCE PRO NAHRÁVÁNÍ OBRÁZKU */}
           <Stack gap="xs" mt="sm">
             <Text size="sm" fw={500}>
-              {t.labelObrazek} (Max. 5)
+              {t("Obrazek")} (Max. 5)
             </Text>
 
             <FileButton onChange={handleFilesChange} accept="image/png,image/jpeg,image/webp" multiple>
@@ -379,7 +370,7 @@ export default function NovyInzeratFormular({
 
           <Group justify="flex-end" mt="md">
             <Button type="submit" disabled={!isEmailOveren}>
-              {initialData ? "Uložit změny" : t.btnSubmit}
+              {initialData ? "Uložit změny" : t("button")}
             </Button>
           </Group>
         </Stack>

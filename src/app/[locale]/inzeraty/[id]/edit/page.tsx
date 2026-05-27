@@ -26,7 +26,6 @@ export async function generateMetadata({ params }: EditPageProps): Promise<Metad
 }
 
 export default async function Page({ params, searchParams }: EditPageProps) {
-  const t = await getTranslations();
   const { id } = await params;
   const session = await auth();
 
@@ -45,43 +44,6 @@ export default async function Page({ params, searchParams }: EditPageProps) {
   if (!isOwner && !isPasswordValid) {
     redirect(`/inzeraty/${id}?error=neopravneny_vstup`);
   }
-
-  const tForm = {
-    labelNazev: t("page.Addlisting.name"),
-    placeholderNazev: t("page.Addlisting.namePlaceholder"),
-    labelPopis: t("page.Addlisting.description"),
-    placeholderPopis: t("page.Addlisting.descriptionPlaceholder"),
-    labelKategorie: t("page.Addlisting.category"),
-    placeholderKategorie: t("page.Addlisting.categoryPlaceholder"),
-    labelCena: t("page.Addlisting.price"),
-    placeholderCena: t("page.Addlisting.pricePlaceholder"),
-    labelZdarma: t("page.Addlisting.zdarma"),
-    labelJmeno: t("page.Addlisting.nameSurname"),
-    placeholderJmeno: t("page.Addlisting.nameSurnamePlaceholder"),
-    labelKontakt: t("page.Addlisting.contact"),
-    placeholderKontakt: t("page.Addlisting.contactPlaceholder"),
-    labelObrazek: t("page.Addlisting.Obrazek"),
-    placeholderObrazek: t("page.Addlisting.ObrazekPlaceholder"),
-    labelHeslo: t("page.Addlisting.password"),
-    placeholderHeslo: t("page.Addlisting.passwordPlaceholder"),
-    upozorneniHeslo: t("page.Addlisting.passwordWarning"),
-    btnSubmit: t("page.Addlisting.button"),
-    btnEditSubmit: "Uložit změny", // 👈 Text pro editační tlačítko
-  };
-
-  const kategorieOptions = [
-    { value: "Elektronika", label: t("page.Categories.Electronics") },
-    { value: "Nábytek", label: t("page.Categories.Furniture") },
-    { value: "Oblečení", label: t("page.Categories.Clothing") },
-    { value: "Vozidla", label: t("page.Categories.Vehicles") },
-    { value: "Dětské zboží", label: t("page.Categories.Children") },
-    { value: "Zvířata", label: t("page.Categories.Animals") },
-    { value: "Dům a zahrada", label: t("page.Categories.Home&Garden") },
-    { value: "Hudba", label: t("page.Categories.Music") },
-    { value: "Knihy", label: t("page.Categories.Books") },
-    { value: "Sport", label: t("page.Categories.Sport") },
-    { value: "Ostatní", label: t("page.Categories.Misc") },
-  ];
 
   // SERVER ACTION: Aktualizace inzerátu v databázi (UPDATE)
   async function updateInzerat(formData: FormData) {
@@ -155,8 +117,6 @@ export default async function Page({ params, searchParams }: EditPageProps) {
       {/* Vykreslíme tvůj klientský formulář, předáme mu update funkci a stávající data */}
       <NovyInzeratFormular
         onSubmitAction={updateInzerat}
-        t={tForm}
-        kategorieOptions={kategorieOptions}
         initialData={initialDataData} // 👈 Předání načtených dat pro předvyplnění v form.tsx
       />
     </Container>
