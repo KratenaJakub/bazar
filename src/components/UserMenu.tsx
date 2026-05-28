@@ -4,7 +4,9 @@ import { Avatar, Button, Group, Menu, Text, UnstyledButton } from "@mantine/core
 import { IconChevronDown, IconLogout, IconPackage, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { odhlasitUzivatele } from "@/app/[locale]/auth/actions"; // 🌟 Importujeme naši novou akci
+import { useEffect, useState } from "react";
+import { getUserImageAction } from "@/app/[locale]/accountmanagement/actions"; // 🌟 Importujeme naši novou akci
+import { odhlasitUzivatele } from "@/app/[locale]/auth/actions";
 
 interface UserMenuProps {
   session: {
@@ -19,6 +21,17 @@ interface UserMenuProps {
 export default function UserMenu({ session }: UserMenuProps) {
   const { data: clientSession } = useSession();
   const currentSession = clientSession || session;
+  const [customImage, setCustomImage] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (currentSession?.user) {
+      // Načteme čerstvý obrázek přímo z DB
+      getUserImageAction().then((img) => {
+        setCustomImage(img);
+      });
+    } else {
+      setCustomImage(null);
+    }
+  }, [currentSession]);
   // 1. Varianta: Uživatel NENÍ přihlášený
   if (!currentSession?.user) {
     return (
@@ -31,6 +44,7 @@ export default function UserMenu({ session }: UserMenuProps) {
   }
 
   const { name, email, image } = currentSession.user;
+  const finalImage = customImage !== undefined ? customImage : image;
 
   // Generování iniciálů pro avatar
   const inicialy = name
@@ -56,7 +70,7 @@ export default function UserMenu({ session }: UserMenuProps) {
               </Text>
             </div>
 
-            <Avatar src={image} radius="xl" size="md" color="orange">
+            <Avatar src={finalImage} radius="xl" size="md" color="orange">
               {inicialy}
             </Avatar>
             <IconChevronDown size={14} stroke={1.5} color="var(--mantine-color-dimmed)" />
