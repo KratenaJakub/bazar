@@ -62,7 +62,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (trigger === "update" && session?.user) {
         token.name = session.user.name;
         token.email = session.user.email;
-        token.image = session.user.image;
       }
 
       return token;
@@ -75,7 +74,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Pokud token obsahuje upravené jméno nebo email, propíšeme je do session
         if (token.name) session.user.name = token.name;
         if (token.email) session.user.email = token.email as string;
-        session.user.image = token.image as string | null;
       }
       return session;
     },

@@ -1,9 +1,11 @@
 "use client";
 
 import { Button, Group, Image, Modal, Paper, PasswordInput, SimpleGrid, Stack, Text, Title } from "@mantine/core";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconMessage } from "@tabler/icons-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { startChatAction } from "@/app/[locale]/accountmanagement/chats/actions";
 import InzeratMapa from "@/components/inzeratmapa";
 import PlatbaQR from "@/components/qrplatba";
 
@@ -17,6 +19,7 @@ interface DetailProps {
     status: string;
     NameSurname: string;
     contact: string;
+    userId: string | null;
     Photo: string;
     showQr: boolean;
     bankAccount: string | null;
@@ -136,6 +139,25 @@ export default function DetailInzeratu({
       window.location.href = `/inzeraty/${inzerat.id}/edit?pwd=${encodeURIComponent(zadaneHeslo)}`;
     }
   };
+  const router = useRouter();
+  const [isChatPending, setIsChatPending] = useState(false);
+
+  const handleStartChat = async () => {
+    if (!currentUserId || !inzerat.userId) return;
+    setIsChatPending(true);
+
+    // Předpokládáme, že v objektu 'inzerat' máme k dispozici 'userId' autora.
+    // Pokud se pole jmenuje jinak (např. v inzerat.userId není), ujisti se, že ho ze serveru posíláš.
+    const res = await startChatAction(inzerat.id, inzerat.userId);
+
+    setIsChatPending(false);
+    if (res.success && res.chatId) {
+      // Přesměrujeme uživatele na profil a do URL dáme parametr pro otevření konkrétního chatu
+      router.push(`/accountmanagement?tab=chaty&activeChat=${res.chatId}`);
+    } else {
+      alert(res.error || "Chyba při zakládání chatu.");
+    }
+  };
 
   return (
     <Stack gap="xl">
@@ -188,6 +210,34 @@ export default function DetailInzeratu({
               <Text>Kontakt:</Text> {/* */}
               <Text>Jméno a příjmení: {inzerat.NameSurname}</Text> {/* */}
               <Text>Kontakt: {inzerat.contact}</Text> {/* */}
+              {inzerat.userId ? (
+                currentUserId ? (
+                  !jeVlastnikHned && (
+                    <Button
+                      leftSection={<IconMessage size={16} />}
+                      color="orange"
+                      fullWidth
+                      loading={isChatPending}
+                      onClick={handleStartChat}
+                      mt="xs"
+                    >
+                      Napsat prodejci (Chat)
+                    </Button>
+                  )
+                ) : (
+                  <Text size="xs" c="dimmed" mt="xs" ta="center">
+                    Pro kontaktování prodejce prostřednictvím chatu se musíte{" "}
+                    <Link href="/auth" style={{ color: "var(--mantine-color-orange-filled)" }}>
+                      přihlásit
+                    </Link>
+                    .
+                  </Text>
+                )
+              ) : (
+                <Text size="xs" c="dimmed" mt="xs" ta="center">
+                  Tento inzerát byl vytvořen bez registrace. Chat není k dispozici, využijte e-mailový kontakt výše.
+                </Text>
+              )}
             </Stack>
             <Group
               justify="space-between"
