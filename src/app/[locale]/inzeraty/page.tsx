@@ -4,7 +4,6 @@ import { and, eq, gte, lte, max, min, ne, or } from "drizzle-orm"; // 🌟 Přid
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/auth";
 import { db } from "@/db";
 import { listings } from "@/db/schemas";
 import FiltryBar from "./FiltryBar";
@@ -30,8 +29,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page({ searchParams }: PageProps) {
   // 1. Zjistíme absolutní min a max cenu ze všech inzerátů v DB
-  const session = await auth();
-  const aktualniUzivatelId = session?.user?.id;
   const [cenyDb] = await db
     .select({
       absolutniMin: min(listings.price),
@@ -46,22 +43,7 @@ export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
   const conditions = [];
 
-  conditions.push(
-    or(
-      // Varianta A: Inzerát NENÍ prodaný -> vidí ho úplně všichni
-      and(
-        ne(listings.status, "sold"), // nahraď případně tvým označením pro prodané
-        ne(listings.status, "Prodané"),
-      ),
-
-      // Varianta B: Inzerát JE prodaný, ale ID tvůrce se shoduje s přihlášeným uživatelem
-      and(
-        or(eq(listings.status, "sold"), eq(listings.status, "Prodané")),
-        // Pokud uživatel není přihlášený (aktualniUzivatelId je null), tato větev se pro jistotu nikdy nesplní
-        aktualniUzivatelId ? eq(listings.userId, aktualniUzivatelId) : eq(listings.id, "nikdy-nesplnitelny-text"),
-      ),
-    ),
-  );
+  conditions.push(and(ne(listings.status, "sold"), ne(listings.status, "Prodáno"), ne(listings.status, "Prodané")));
   // A. Vyhledávání textu
 
   // B. Filtrování podle kategorie
@@ -160,7 +142,7 @@ export default async function Page({ searchParams }: PageProps) {
             </Stack>
           </Alert>
         ) : (
-          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
+          <SimpleGrid cols={{ base: 1, sm: 4 }} spacing="lg">
             {filtrovaneInzeraty.map((inzerat) => {
               const stav = inzerat.status;
               const jeAktivni = stav === "Aktivní";
@@ -204,7 +186,7 @@ export default async function Page({ searchParams }: PageProps) {
                       bg="gray.0"
                     />
                   </CardSection>
-                  <Text fw={700}> {`${inzerat.price.toLocaleString()} ${t("page.listings.Kc")}`}</Text>
+                  <Text fw={700}>{`${inzerat.price.toLocaleString()} ${t("page.listings.Kc")}`}</Text>
                   <Link href={`/inzeraty/${inzerat.id}`} passHref style={{ textDecoration: "none" }}>
                     <Button fullWidth mt="md" radius="md" variant="light">
                       {t("page.listings.button")}

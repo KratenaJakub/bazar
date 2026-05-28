@@ -13,6 +13,17 @@ interface FiltryBarProps {
 }
 
 export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Definice popisků (marks) pro RangeSlider
+  const sliderMarks = [
+    { value: dbMin, label: mounted ? `${dbMin.toLocaleString()} Kč` : "" },
+    { value: dbMax, label: mounted ? `${dbMax.toLocaleString()} Kč` : "" },
+  ];
   const t = useTranslations("FiltryBar");
   const router = useRouter();
   const pathname = usePathname();
@@ -205,10 +216,7 @@ export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
               radius="md"
               label={null}
               suppressHydrationWarning
-              marks={[
-                { value: dbMin, label: `${dbMin.toLocaleString()} Kč` },
-                { value: dbMax, label: `${dbMax.toLocaleString()} Kč` },
-              ]}
+              marks={sliderMarks}
               styles={{
                 markLabel: { fontSize: "10px", marginTop: "4px" },
               }}

@@ -48,6 +48,14 @@ export default async function InzeratDetailPage({ params }: PageProps) {
       throw new Error("Nedostatečná oprávnění.");
     }
 
+    // 🌟 ZMĚNA: Pokud inzerát nemá registrovaného uživatele, rovnou ho smažeme a přesměrujeme
+    if (!data.userId) {
+      await db.delete(listings).where(eq(listings.id, id));
+      revalidatePath("/inzeraty");
+      redirect("/inzeraty");
+    }
+
+    // Pokud je registrovaného uživatele, klasicky změníme stav na Prodáno (přesune se do profilu)
     await db.update(listings).set({ status: "Prodáno" }).where(eq(listings.id, id));
     revalidatePath(`/inzeraty/${id}`);
     revalidatePath("/inzeraty");
