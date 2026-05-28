@@ -2,6 +2,7 @@
 
 import { environmentManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { SessionProvider } from "next-auth/react"; // 🌟 Přidán import
 import type { ReactNode } from "react";
 import { MaintenanceModal } from "@/components/infrastructure/MaintenanceModal";
 
@@ -27,9 +28,13 @@ export function Providers({ children }: ProvidersProps) {
   const queryClient = getQueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <MaintenanceModal>{children}</MaintenanceModal>
-      <ReactQueryDevtools />
-    </QueryClientProvider>
+    <SessionProvider>
+      {" "}
+      {/* 🌟 Zabaleno do SessionProvider, aby useSession fungoval kdekoli */}
+      <QueryClientProvider client={queryClient}>
+        <MaintenanceModal>{children}</MaintenanceModal>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
+    </SessionProvider>
   );
 }

@@ -3,6 +3,7 @@
 import { Avatar, Button, Group, Menu, Text, UnstyledButton } from "@mantine/core";
 import { IconChevronDown, IconLogout, IconPackage, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { odhlasitUzivatele } from "@/app/[locale]/auth/actions"; // 🌟 Importujeme naši novou akci
 
 interface UserMenuProps {
@@ -16,8 +17,10 @@ interface UserMenuProps {
 }
 
 export default function UserMenu({ session }: UserMenuProps) {
+  const { data: clientSession } = useSession();
+  const currentSession = clientSession || session;
   // 1. Varianta: Uživatel NENÍ přihlášený
-  if (!session?.user) {
+  if (!currentSession?.user) {
     return (
       <Link href="/auth" passHref style={{ textDecoration: "none" }}>
         <Button variant="light" color="orange" size="sm" radius="md">
@@ -27,29 +30,25 @@ export default function UserMenu({ session }: UserMenuProps) {
     );
   }
 
-  const { name, email, image } = session.user;
+  const { name, email, image } = currentSession.user;
 
-  // Genereování iniciálů pro avatar, pokud nemá uživatel fotku
+  // Generování iniciálů pro avatar
   const inicialy = name
     ? name
         .split(" ")
-        .map((n) => n[0])
+        .map((n: string) => n[0])
         .join("")
         .toUpperCase()
     : "U";
 
   // 2. Varianta: Uživatel JE přihlášený
   return (
-    <Menu width={200} position="bottom-end" transitionProps={{ transition: "pop-top-right" }} withinPortal>
+    <Menu width={200} position="bottom-end" transitionProps={{ transition: "pop-top-right" }}>
       <Menu.Target>
-        <UnstyledButton
-          style={{ padding: "4px 8px", borderRadius: "8px", transition: "background-color 0.2s" }}
-          className="hover-bg"
-        >
-          <Group gap="xs">
-            {/* Jméno a menší email nalevo od ikony */}
-            <div style={{ textAlign: "right" }}>
-              <Text size="sm" fw={600} style={{ lineHeight: 1 }}>
+        <UnstyledButton style={{ padding: "var(--mantine-spacing-xs)" }}>
+          <Group gap={7}>
+            <div style={{ flex: 1, textAlign: "right" }}>
+              <Text size="sm" fw={500} style={{ lineHeight: 1 }}>
                 {name}
               </Text>
               <Text size="xs" c="dimmed" mt={3} style={{ lineHeight: 1 }}>
@@ -82,11 +81,8 @@ export default function UserMenu({ session }: UserMenuProps) {
           color="red"
           leftSection={<IconLogout size={14} stroke={1.5} />}
           onClick={async () => {
-            // Zavoláme serverovou akci pro smazání session
             const res = await odhlasitUzivatele();
-
             if (res?.success) {
-              // 🌟 Místo tvrdé url adresy jen čistě obnovíme stávající stránku
               window.location.reload();
             }
           }}

@@ -53,15 +53,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/auth",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
       }
+
+      // 🌟 2. Zpracování změny uživatele z Profil.tsx
+      if (trigger === "update" && session?.user) {
+        token.name = session.user.name;
+        token.email = session.user.email;
+        token.image = session.user.image;
+      }
+
       return token;
     },
     async session({ session, token }) {
+      // 🌟 3. Odeslání upravených dat z tokenu zpět do klienta (prohlížeče)
       if (session.user && token.id) {
         session.user.id = token.id as string;
+
+        // Pokud token obsahuje upravené jméno nebo email, propíšeme je do session
+        if (token.name) session.user.name = token.name;
+        if (token.email) session.user.email = token.email as string;
+        session.user.image = token.image as string | null;
       }
       return session;
     },
