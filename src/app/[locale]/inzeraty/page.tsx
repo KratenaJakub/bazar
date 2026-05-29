@@ -177,14 +177,7 @@ export default async function Page({ searchParams }: PageProps) {
                     {inzerat.price === 0 && <Badge color="green">zdarma</Badge>}
                   </Group>
                   <CardSection mx="md" mb="md">
-                    <Image
-                      src={nahledovaFotka}
-                      alt={inzerat.name || "Obrázek inzerátu"}
-                      h={180}
-                      fit="contain"
-                      mt="md"
-                      bg="gray.0"
-                    />
+                    <Image src={nahledovaFotka} alt={inzerat.name || "Obrázek inzerátu"} h={180} fit="cover" mt="md" />
                   </CardSection>
                   <Text fw={700}>{`${inzerat.price.toLocaleString()} ${t("page.listings.Kc")}`}</Text>
                   <Link href={`/inzeraty/${inzerat.id}`} passHref style={{ textDecoration: "none" }}>

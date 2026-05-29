@@ -21,7 +21,7 @@ export default function PageLogo() {
   const logoSrc = isDark ? "/blogic-logo-dark.png" : "/blogic-logo.png";
 
   return (
-    <Link href="/" passHref style={{ display: "block" }}>
+    <Link href="/inzeraty" passHref style={{ display: "block" }}>
       <Image
         src={logoSrc}
         alt="Logo značky Blogic"

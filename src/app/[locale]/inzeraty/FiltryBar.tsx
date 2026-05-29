@@ -163,7 +163,6 @@ export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
           data={[
             { value: "Aktivní", label: t("Status.Active") },
             { value: "Rezervováno", label: t("Status.Reserved") },
-            { value: "Prodáno", label: t("Status.Sold") },
           ]}
           value={stav}
           onChange={handleStavChange}
