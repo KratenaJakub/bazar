@@ -20,10 +20,18 @@ export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
   }, []);
 
   // Definice popisků (marks) pro RangeSlider
-  const sliderMarks = [
-    { value: dbMin, label: mounted ? `${dbMin.toLocaleString()} Kč` : "" },
-    { value: dbMax, label: mounted ? `${dbMax.toLocaleString()} Kč` : "" },
-  ];
+  const formatujVelkeCislo = (hodnota: number): string => {
+    if (hodnota >= 1_000_000_000) {
+      return `${(hodnota / 1_000_000_000).toFixed(1).replace(".", ",")} mld. Kč`;
+    }
+    if (hodnota >= 1_000_000) {
+      return `${(hodnota / 1_000_000).toFixed(1).replace(".", ",")} mil. Kč`;
+    }
+    if (hodnota >= 1_000) {
+      return `${(hodnota / 1_000).toFixed(0)} tis. Kč`;
+    }
+    return `${hodnota} Kč`;
+  };
   const t = useTranslations("FiltryBar");
   const router = useRouter();
   const pathname = usePathname();
@@ -215,11 +223,16 @@ export default function FiltryBar({ dbMin, dbMax }: FiltryBarProps) {
               radius="md"
               label={null}
               suppressHydrationWarning
-              marks={sliderMarks}
-              styles={{
-                markLabel: { fontSize: "10px", marginTop: "4px" },
-              }}
             />
+            <Group justify="space-between" mt={6} wrap="nowrap" style={{ width: "100%" }}>
+              <Text size="10px" c="dimmed" style={{ lineHeight: 1 }}>
+                {mounted ? formatujVelkeCislo(dbMin) : ""}
+              </Text>
+
+              <Text size="10px" c="dimmed" ta="right" style={{ lineHeight: 1 }}>
+                {mounted ? formatujVelkeCislo(dbMax) : ""}
+              </Text>
+            </Group>
           </Box>
         </Stack>
       </SimpleGrid>
